@@ -81,18 +81,15 @@
   updateVolumeIcon();
 
   /* ---------- Play/pause ---------- */
+  const PLAY_ICON = '<path d="M8 5v14l11-7z"/>';
+  const PAUSE_ICON = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
+
   function setPlaying(playing) {
     isPlaying = playing;
     buttons.forEach(btn => {
       btn.classList.toggle('playing', playing);
-      const titleEl = btn.querySelector('.pill-title, .btn-text');
-      if (!titleEl) return;
-      if (playing) {
-        titleEl.dataset.original = titleEl.dataset.original || titleEl.textContent;
-        titleEl.textContent = btn.classList.contains('play-pill') ? 'Reproduciendo' : 'Pausar';
-      } else if (titleEl.dataset.original) {
-        titleEl.textContent = titleEl.dataset.original;
-      }
+      const iconSvg = btn.querySelector('.icon-circle svg');
+      if (iconSvg) iconSvg.innerHTML = playing ? PAUSE_ICON : PLAY_ICON;
     });
   }
 

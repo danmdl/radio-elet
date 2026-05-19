@@ -19,11 +19,18 @@
 }
 
 html, body {
-  background: var(--bg);
   color: var(--text);
   font-family: 'Lato', sans-serif;
   line-height: 1.4;
   overflow-x: hidden;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(30,160,62,0.04) 0%, transparent 70%),
+    linear-gradient(180deg, #ecefec 0%, #f4f7f5 35%, #f4f7f5 65%, #d9e8dc 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -39,24 +46,35 @@ img { display: block; max-width: 100%; }
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
+  overflow: visible;
 }
 
 .header-inner {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 10px 32px;
+  padding: 10px 32px 10px 170px;
   display: flex;
   align-items: center;
   gap: 28px;
+  position: relative;
+  min-height: 60px;
 }
 
 .logo-link {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-45%);
+  z-index: 30;
   display: flex;
   align-items: center;
-  flex-shrink: 0;
 }
 
-.logo-link img { height: 48px; width: auto; }
+.logo-link img {
+  height: 96px;
+  width: auto;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.12));
+}
 
 .nav {
   display: flex;
@@ -146,8 +164,7 @@ img { display: block; max-width: 100%; }
 .play-pill .pill-title { font-size: 13px; font-weight: 700; }
 .play-pill .pill-sub { font-size: 9.5px; font-weight: 400; opacity: 0.95; }
 
-.play-pill.playing .pill-title::before {
-  content: '● ';
+.play-pill.playing .icon-circle {
   animation: pulse 1.4s infinite;
 }
 
@@ -218,6 +235,8 @@ img { display: block; max-width: 100%; }
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
+.header .socials { display: none; }
+
 .socials { display: flex; gap: 8px; }
 
 .social-icon {
@@ -243,31 +262,52 @@ img { display: block; max-width: 100%; }
 /* =================== HERO =================== */
 .hero {
   position: relative;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 32px 32px 24px;
+  max-width: 1380px;
+  margin: 18px auto;
+  padding: 24px 40px;
   display: grid;
-  grid-template-columns: 1fr 1.6fr 1fr;
+  grid-template-columns: 1fr 1.4fr 0.9fr;
   gap: 24px;
   align-items: center;
+  background:
+    radial-gradient(ellipse 55% 70% at 72% 55%, rgba(30,160,62,0.06) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 70% at 28% 50%, rgba(30,160,62,0.08) 0%, transparent 70%),
+    linear-gradient(180deg, #f5faf6 0%, #e8f3eb 100%);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px -10px rgba(30,160,62,0.15);
 }
 
 .hero::before {
   content: '';
   position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
+  top: -40%;
+  right: -20%;
   width: 70%;
-  height: 90%;
+  height: 180%;
   background:
-    radial-gradient(ellipse at center, rgba(30,160,62,0.06) 0%, transparent 60%),
-    repeating-linear-gradient(90deg, transparent 0, transparent 18px, rgba(30,160,62,0.04) 18px, rgba(30,160,62,0.04) 20px);
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    radial-gradient(circle at 50% 50%, transparent 36%, rgba(92,221,92,0.07) 37%, rgba(92,221,92,0.07) 39%, transparent 40%),
+    radial-gradient(circle at 50% 50%, transparent 28%, rgba(92,221,92,0.05) 29%, rgba(92,221,92,0.05) 31%, transparent 32%),
+    radial-gradient(circle at 50% 50%, transparent 20%, rgba(92,221,92,0.04) 21%, rgba(92,221,92,0.04) 23%, transparent 24%);
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 }
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -15%;
+  width: 50%;
+  height: 130%;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 38%, rgba(92,221,92,0.05) 39%, rgba(92,221,92,0.05) 41%, transparent 42%),
+    radial-gradient(circle at 50% 50%, transparent 28%, rgba(92,221,92,0.04) 29%, rgba(92,221,92,0.04) 31%, transparent 32%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero > * { position: relative; z-index: 1; }
 
 .hero-text h1 {
   font-family: 'Oswald', sans-serif;
@@ -342,8 +382,7 @@ img { display: block; max-width: 100%; }
 
 .btn-listen .icon-circle svg { width: 14px; height: 14px; }
 
-.btn-listen.playing .btn-text::before {
-  content: '● ';
+.btn-listen.playing .icon-circle {
   animation: pulse 1.4s infinite;
 }
 
@@ -352,10 +391,12 @@ img { display: block; max-width: 100%; }
   aspect-ratio: 16 / 10;
   width: 100%;
   margin: 0 auto;
-  border-radius: 14px;
+  border-radius: 0;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--green-soft) 0%, #d4ebd4 100%);
-  box-shadow: 0 20px 50px -15px rgba(30,160,62,0.3);
+  background: transparent;
+  box-shadow: none;
+  -webkit-mask-image: radial-gradient(ellipse 80% 90% at center, black 55%, transparent 92%);
+  mask-image: radial-gradient(ellipse 80% 90% at center, black 55%, transparent 92%);
 }
 
 .hero-photo img {
@@ -835,29 +876,33 @@ img { display: block; max-width: 100%; }
 .footer-socials {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 .footer-socials .lbl {
   font-family: 'Oswald', sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.9;
+  opacity: 0.95;
 }
-.footer-socials .icons { display: flex; gap: 6px; }
+.footer-socials .icons { display: flex; gap: 10px; }
 .footer-socials .icons a {
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(255,255,255,0.18);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.15s;
 }
-.footer-socials .icons a:hover { background: rgba(255,255,255,0.32); }
-.footer-socials .icons svg { width: 14px; height: 14px; }
+.footer-socials .icons a:hover {
+  background: rgba(255,255,255,0.34);
+  transform: translateY(-2px);
+}
+.footer-socials .icons svg { width: 22px; height: 22px; }
 
 .copyright {
   text-align: center;
