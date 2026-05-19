@@ -127,14 +127,14 @@ img { display: block; max-width: 100%; }
 .logo-link {
   position: static;
   display: block;
-  height: 40px;
+  height: 32px;
   overflow: hidden;
   flex-shrink: 0;
   border-radius: 4px;
 }
 
 .logo-link img {
-  height: 88px;
+  height: 70px;
   width: auto;
   display: block;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
@@ -1021,10 +1021,10 @@ img { display: block; max-width: 100%; }
 @media (max-width: 768px) {
   .header-inner { padding: 10px 16px; gap: 10px; flex-wrap: wrap; }
   .logo-link {
-    height: 32px;
+    height: 26px;
   }
   .logo-link img {
-    height: 70px;
+    height: 56px;
   }
   .nav { display: none; }
   .play-pill { padding: 7px 14px 7px 8px; }
