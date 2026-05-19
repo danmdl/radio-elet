@@ -96,15 +96,6 @@ html, body {
   font-family: 'Lato', sans-serif;
   line-height: 1.4;
   overflow-x: hidden;
-  -webkit-tap-highlight-color: transparent;
-}
-
-a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
-a:focus, button:focus, [role="button"]:focus { outline: none; }
-a:focus-visible, button:focus-visible, [role="button"]:focus-visible {
-  outline: 2px solid var(--green);
-  outline-offset: 2px;
-  border-radius: 4px;
 }
 
 body {
@@ -117,11 +108,22 @@ body {
   flex-direction: column;
 }
 
-.header { flex-shrink: 0; }
-.footer { flex-shrink: 0; }
-.route-page { flex: 1 0 auto; display: flex; flex-direction: column; }
-.route-page[hidden] { display: none !important; }
-.route-page > section:last-of-type { flex: 1 0 auto; }
+/* Push the footer to the bottom of the viewport when content is short */
+body > .route-page { flex: 1 0 auto; }
+body > .footer { flex-shrink: 0; }
+
+/* On-brand focus indicator (never default red/orange) */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.social-icon:focus-visible,
+.footer-socials .icons a:focus-visible,
+.hero-dots button:focus-visible {
+  outline-offset: 3px;
+}
 
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
@@ -397,11 +399,11 @@ img { display: block; max-width: 100%; }
 .hero {
   position: relative;
   max-width: 1380px;
-  margin: 10px auto;
-  padding: 14px 32px;
+  margin: 12px auto;
+  padding: 18px 32px;
   display: grid;
   grid-template-columns: 1fr 1.4fr 0.9fr;
-  gap: 24px;
+  gap: 20px;
   align-items: center;
   background:
     radial-gradient(ellipse 55% 70% at 72% 55%, rgba(30,160,62,0.06) 0%, transparent 65%),
@@ -797,7 +799,7 @@ img { display: block; max-width: 100%; }
 /* =================== CARDS =================== */
 .cards-section {
   max-width: 1440px;
-  margin: 14px auto 16px;
+  margin: 14px auto;
   padding: 0 32px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -813,7 +815,7 @@ img { display: block; max-width: 100%; }
   flex-direction: column;
   transition: transform 0.25s, box-shadow 0.25s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  height: 220px;
+  height: 230px;
 }
 
 .card:hover {
@@ -969,7 +971,9 @@ img { display: block; max-width: 100%; }
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 12px;
+  min-height: 360px;
 }
 
 .placeholder-icon {
@@ -1023,7 +1027,7 @@ body.is-inner .back-home { display: inline-flex; }
 .footer {
   background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
   color: white;
-  padding: 12px 32px;
+  padding: 14px 32px;
 }
 
 .footer-inner {
@@ -1404,7 +1408,7 @@ body.is-inner .back-home { display: inline-flex; }
       <div class="placeholder-card">
         <svg class="placeholder-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2m0 16H4V5h16v14M6 7h12v2H6m0 4h12v2H6m0 4h8v2H6z"/></svg>
         <h2>Próximamente</h2>
-        <p>Estamos preparando esta sección con noticias, testimonios y reflexiones que renuevan la fe. Mientras tanto, seguinos en redes para no perderte nada.</p>
+        <p>Pronto vas a encontrar acá noticias, testimonios y reflexiones que renuevan la fe cada día.</p>
         <a href="#" class="back-link" data-route-link="home">← Volver al inicio</a>
       </div>
     </div>
