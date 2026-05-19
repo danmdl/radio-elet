@@ -131,9 +131,9 @@ img { display: block; max-width: 100%; }
 }
 
 .logo-link img {
-  height: 32px;
-  width: auto;
-  max-width: none;
+  height: 32px !important;
+  width: auto !important;
+  max-width: none !important;
   display: block;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
   transition: transform 0.25s;
