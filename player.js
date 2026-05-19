@@ -1,6 +1,8 @@
 (function () {
   const audio = document.getElementById('audioEl');
   if (!audio) return;
+  const source = audio.querySelector('source');
+  const streamUrl = source ? source.src : audio.src;
   const buttons = document.querySelectorAll('[data-play-toggle]');
   let isPlaying = false;
 
@@ -19,17 +21,24 @@
     });
   }
 
-  function toggle() {
-    if (!isPlaying) {
-      audio.play().then(() => setPlaying(true)).catch(err => {
-        console.error('Error al reproducir:', err);
-        alert('No se pudo conectar al stream. Intentá de nuevo.');
-      });
-    } else {
-      audio.pause();
-      audio.src = audio.src;
-      setPlaying(false);
+  function play() {
+    if (!audio.src || audio.src === '' || audio.src === window.location.href) {
+      audio.src = streamUrl;
     }
+    audio.play().then(() => setPlaying(true)).catch(err => {
+      console.error('Error al reproducir:', err);
+      alert('No se pudo conectar al stream. Intentá de nuevo.');
+    });
+  }
+
+  function pause() {
+    audio.pause();
+    setPlaying(false);
+  }
+
+  function toggle() {
+    if (isPlaying) pause();
+    else play();
   }
 
   buttons.forEach(btn => btn.addEventListener('click', toggle));
