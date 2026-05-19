@@ -52,9 +52,9 @@
 
   <section class="hero">
     <div class="hero-text">
-      <h1>Radio que <span class="accent">transforma<br/>vidas</span></h1>
+      <h1>Radio que <span class="accent">transforma vidas</span></h1>
       <div class="hero-tagline">
-        <svg class="heart" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <svg class="heart" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
         <p>Transmitiendo esperanza,<br/>fe y amor las 24 horas.</p>
@@ -67,20 +67,25 @@
       </button>
     </div>
 
-    <div class="hero-photo">
-      <!-- Cuando esté la foto: <img src="hero.jpg" alt="Conductores de Elet Radio Vida"/> -->
-      <div class="photo-placeholder">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3m5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.42 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.3 6-6.72h-1.7z"/>
-        </svg>
-        <span class="ph-text">Foto pendiente</span>
+    <div>
+      <div class="hero-photo">
+        <!-- Cuando esté la foto: <img src="hero.jpg" alt="Conductores de Elet Radio Vida"/> -->
+        <div class="photo-placeholder">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3m5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.42 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.3 6-6.72h-1.7z"/>
+          </svg>
+          <span class="ph-text">Foto pendiente</span>
+        </div>
+      </div>
+      <div class="hero-dots">
+        <span class="active"></span><span></span><span></span><span></span>
       </div>
     </div>
 
     <div class="hero-right">
-      <span class="hint">Cada día</span>
-      <h2>Un mensaje de<br/><span class="accent">esperanza</span></h2>
-      <p class="sub">Para tu vida<br/>todos los días.</p>
+      <span class="hint">Un mensaje de</span>
+      <h2><span class="accent">Esperanza</span></h2>
+      <p class="sub">para tu vida<br/>todos los días.</p>
       <button class="arrow-next" aria-label="Siguiente">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14M13 6l6 6-6 6"/>
@@ -89,72 +94,64 @@
     </div>
   </section>
 
+  <section class="ticker">
+    <div class="ticker-inner">
+      <span class="ticker-badge">Ahora</span>
+      <span class="ticker-intro">Todo lo que pasa, todo el día</span>
+      <div class="ticker-items">
+        <span class="ticker-item"><span class="ti-time">20:00</span> Música cristiana sin pausa, las 24 horas en Elet Radio Vida</span>
+        <span class="ticker-item"><span class="ti-time">21:30</span> Reflexión nocturna y palabra de aliento</span>
+      </div>
+      <a href="noticias.html" class="ticker-more">Ver más noticias →</a>
+    </div>
+  </section>
+
   <section class="cards-section">
 
     <a href="programas.html" class="card card-1">
-      <div class="card-illustration">
-        <svg class="icon-bg" viewBox="0 0 24 24" fill="white">
-          <path d="M12 1a9 9 0 0 0-9 9v7a3 3 0 0 0 3 3h3v-8H5v-2a7 7 0 0 1 14 0v2h-4v8h3a3 3 0 0 0 3-3v-7a9 9 0 0 0-9-9z"/>
-        </svg>
-      </div>
+      <div class="card-image"></div>
       <div class="card-content">
         <div class="card-label">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a9 9 0 0 0-9 9v7a3 3 0 0 0 3 3h3v-8H5v-2a7 7 0 0 1 14 0v2h-4v8h3a3 3 0 0 0 3-3v-7a9 9 0 0 0-9-9z"/></svg>
           Programas
         </div>
         <h3>Música, palabra y compañía</h3>
-        <p>Una grilla pensada para edificar tu día.</p>
         <span class="card-btn">Ver programas</span>
       </div>
     </a>
 
     <a href="agenda.html" class="card card-2">
-      <div class="card-illustration">
-        <svg class="icon-bg" viewBox="0 0 24 24" fill="white">
-          <path d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2m0 18H5V8h14v13m-7-9.5h2v-2h-2v2m-4 0h2v-2H8v2m8 4h-2v2h2v-2m-4 0H8v2h2v-2m4-4v2h2v-2h-2z"/>
-        </svg>
-      </div>
+      <div class="card-image"></div>
       <div class="card-content">
         <div class="card-label">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2m0 18H5V8h14v13z"/></svg>
           Agenda MJA
         </div>
         <h3>Eventos que transforman</h3>
-        <p>Enterate de todas las actividades y reuniones.</p>
         <span class="card-btn">Ver agenda</span>
       </div>
     </a>
 
     <a href="noticias.html" class="card card-3">
-      <div class="card-illustration">
-        <svg class="icon-bg" viewBox="0 0 24 24" fill="white">
-          <path d="M21 4H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2m0 14H3V8h18v10M5 10h8v2H5v-2m0 4h8v2H5v-2m10-4h4v6h-4v-6z"/>
-        </svg>
-      </div>
+      <div class="card-image"></div>
       <div class="card-content">
         <div class="card-label">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 4H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2m0 14H3V8h18v10z"/></svg>
           Noticias del Cielo
         </div>
         <h3>Información que edifica</h3>
-        <p>Noticias cristianas, inspiración y más.</p>
         <span class="card-btn">Ver noticias</span>
       </div>
     </a>
 
     <a href="jesus.html" class="card card-4">
-      <div class="card-illustration">
-        <svg class="icon-bg" viewBox="0 0 24 24" fill="white">
-          <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8m1-13h-2v4H7v2h4v4h2v-4h4v-2h-4V7z"/>
-        </svg>
-      </div>
+      <div class="card-image"></div>
       <div class="card-content">
         <div class="card-label">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m1 13h-2v-2h2m0-2h-2V7h2v6z"/></svg>
           ¿Conocés a Jesús?
         </div>
         <h3>Él cambió millones de vidas</h3>
-        <p>Podés ser el próximo.</p>
         <span class="card-btn">Quiero conocer más</span>
       </div>
     </a>
@@ -212,8 +209,6 @@
         </div>
       </div>
     </div>
-
-    <div class="copyright">© Radio Elet FM 99.3 · Ministerios Jesucristo es Amor</div>
   </footer>
 
   <audio id="audioEl" preload="none">
