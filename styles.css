@@ -63,14 +63,14 @@ img { display: block; max-width: 100%; }
 .logo-link {
   position: absolute;
   left: 48px;
-  top: 8px;
+  top: -4px;
   z-index: 30;
   display: flex;
   align-items: flex-start;
 }
 
 .logo-link img {
-  height: 100px;
+  height: 96px;
   width: auto;
   filter:
     drop-shadow(2px 2px 0 rgba(15,90,30,0.4))
