@@ -60,34 +60,31 @@ img { display: block; max-width: 100%; }
 .header-inner {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 10px 32px 10px 150px;
+  padding: 8px 32px;
   display: flex;
   align-items: center;
-  gap: 28px;
-  position: relative;
+  gap: 32px;
   min-height: 60px;
 }
 
 .logo-link {
-  position: absolute;
-  left: 32px;
-  top: 4px;
-  z-index: 30;
-  display: flex;
-  align-items: flex-start;
+  position: static;
+  display: block;
+  height: 50px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 6px;
 }
 
 .logo-link img {
-  height: 72px;
+  height: 90px;
   width: auto;
-  filter:
-    drop-shadow(1.5px 1.5px 0 rgba(15,90,30,0.35))
-    drop-shadow(3px 3px 0 rgba(15,90,30,0.22))
-    drop-shadow(0 6px 10px rgba(0,0,0,0.18));
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
   transition: transform 0.25s;
 }
 
-.logo-link:hover img { transform: scale(1.04); }
+.logo-link:hover img { transform: scale(1.05); }
 
 .nav {
   display: flex;
@@ -129,6 +126,32 @@ img { display: block; max-width: 100%; }
   gap: 14px;
   flex-shrink: 0;
 }
+
+.back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 10px;
+  background: var(--green-soft);
+  color: var(--green-dark);
+  border-radius: 999px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(30,160,62,0.2);
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+
+.back-home:hover {
+  background: var(--green);
+  color: white;
+  transform: translateX(-2px);
+}
+
+.back-home svg { width: 14px; height: 14px; }
 
 .play-pill {
   display: flex;
@@ -941,13 +964,10 @@ img { display: block; max-width: 100%; }
 @media (max-width: 768px) {
   .header-inner { padding: 10px 16px; gap: 10px; flex-wrap: wrap; }
   .logo-link {
-    position: static;
-    top: auto;
-    left: auto;
+    height: 38px;
   }
   .logo-link img {
-    height: 44px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+    height: 70px;
   }
   .nav { display: none; }
   .play-pill { padding: 7px 14px 7px 8px; }
