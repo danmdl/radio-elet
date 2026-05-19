@@ -131,7 +131,7 @@ img { display: block; max-width: 100%; }
 }
 
 .logo-link img {
-  height: 32px !important;
+  height: 56px !important;
   width: auto !important;
   max-width: none !important;
   display: block;
@@ -1019,7 +1019,7 @@ img { display: block; max-width: 100%; }
 @media (max-width: 768px) {
   .header-inner { padding: 10px 16px; gap: 10px; flex-wrap: wrap; }
   .logo-link img {
-    height: 26px;
+    height: 44px !important;
   }
   .nav { display: none; }
   .play-pill { padding: 7px 14px 7px 8px; }
