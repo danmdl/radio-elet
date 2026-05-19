@@ -143,9 +143,10 @@ img { display: block; max-width: 100%; }
 
 .nav {
   display: flex;
-  gap: 26px;
   flex: 1;
-  justify-content: center;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 16px;
 }
 
 .nav a {
