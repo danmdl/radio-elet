@@ -1052,6 +1052,266 @@ img { display: block; max-width: 100%; }
 
 .back-link:hover { background: var(--green); color: white; }
 
+/* =================== SCHEDULE GRID =================== */
+.schedule-wrap {
+  max-width: 1280px;
+  margin: 0 auto 64px;
+  padding: 0 32px;
+}
+
+.schedule {
+  --time-w: 78px;
+  --row-h: 64px;
+  --c-morning: #ffd9b8;
+  --c-morning-deep: #c4632a;
+  --c-morning-band: linear-gradient(90deg, #ff9a55 0%, #ff7e3d 100%);
+  --c-afternoon: #d8d1f0;
+  --c-afternoon-deep: #5b4ba0;
+  --c-afternoon-band: linear-gradient(90deg, #7c6ec8 0%, #6957b9 100%);
+  --c-night: #1d2b58;
+  --c-night-tint: #2a3b75;
+  --c-night-band: linear-gradient(90deg, #2a3b75 0%, #1a2550 100%);
+
+  display: grid;
+  grid-template-columns: var(--time-w) repeat(7, 1fr);
+  grid-auto-rows: var(--row-h);
+  gap: 4px;
+  padding: 14px;
+  background: linear-gradient(180deg, #f5f8f5 0%, #eaf1ec 100%);
+  border-radius: 20px;
+  box-shadow: 0 14px 40px -16px rgba(15, 60, 25, 0.18);
+  border: 1px solid rgba(30,160,62,0.12);
+  overflow: hidden;
+}
+
+/* Day headers */
+.sch-corner,
+.sch-day {
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text);
+  height: 44px;
+  align-self: start;
+}
+.sch-corner {
+  background: transparent;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+.sch-day-weekend { color: var(--green); }
+
+/* Section bands */
+.sch-band {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: white;
+  height: 44px;
+  position: relative;
+}
+.sch-band svg { width: 20px; height: 20px; opacity: 0.95; }
+.sch-band .sb-range {
+  margin-left: auto;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  opacity: 0.85;
+  font-weight: 500;
+}
+.sch-band-morning { background: var(--c-morning-band); }
+.sch-band-afternoon { background: var(--c-afternoon-band); }
+.sch-band-night { background: var(--c-night-band); }
+
+/* Time column cells */
+.sch-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--text-soft);
+  background: rgba(255,255,255,0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+/* Generic cell shell */
+.sch-cell,
+.sch-show {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.sch-show { cursor: default; }
+.sch-show:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -10px rgba(0,0,0,0.18);
+  z-index: 2;
+}
+
+.sch-empty {
+  background: transparent;
+  border: 1px dashed rgba(0,0,0,0.07);
+}
+
+/* Show typography */
+.sh-eyebrow {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+.sh-title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  color: var(--text);
+  text-wrap: balance;
+}
+.sh-title-lg { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+.sh-host {
+  font-size: 11.5px;
+  color: var(--text-soft);
+  line-height: 1.3;
+}
+
+/* Color-coded show variants */
+.s-talk { background: linear-gradient(135deg, #ffffff 0%, #f1faf3 100%); border-left: 3px solid var(--green); }
+.s-talk .sh-title { color: var(--green-darker); }
+
+.s-music { background: linear-gradient(135deg, #fff8ec 0%, #ffeed1 100%); border-left: 3px solid #d99033; }
+.s-music .sh-title { color: #7a4a14; }
+.s-music .sh-host { color: #9b6c30; }
+
+.s-flagship {
+  background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.6) 0%, transparent 60%), linear-gradient(135deg, #1ea03e 0%, #167f30 100%);
+  color: white;
+  border: none;
+  padding: 18px 22px;
+  align-items: flex-start;
+  justify-content: center;
+}
+.s-flagship .sh-eyebrow { color: rgba(255,255,255,0.85); }
+.s-flagship .sh-title { color: white; }
+.s-flagship .sh-host { color: rgba(255,255,255,0.88); font-size: 13px; max-width: 32ch; }
+.s-flagship::after {
+  content: '';
+  position: absolute;
+  right: -40px;
+  bottom: -40px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 24px solid rgba(255,255,255,0.06);
+  pointer-events: none;
+}
+
+.s-celebrate {
+  background: linear-gradient(135deg, #fff3d6 0%, #ffd98a 100%);
+  border-left: 3px solid #d49021;
+}
+.s-celebrate .sh-title { color: #6b4310; }
+
+.s-sport {
+  background: linear-gradient(135deg, #eaf2ff 0%, #d3e2ff 100%);
+  border-left: 3px solid #3266c7;
+}
+.s-sport .sh-title { color: #1d3d80; font-size: 13px; }
+
+.s-doc {
+  background: linear-gradient(135deg, #f3eaff 0%, #e1ccff 100%);
+  border-left: 3px solid #6f47c1;
+}
+.s-doc .sh-title { color: #3e1f7a; font-size: 12.5px; }
+
+.s-talk-night {
+  background: linear-gradient(135deg, #213163 0%, #1a2550 100%);
+  border-left: 3px solid #6b8eff;
+  color: white;
+}
+.s-talk-night .sh-title { color: white; }
+.s-talk-night .sh-host { color: rgba(255,255,255,0.78); }
+
+/* Legend */
+.sch-legend {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 22px;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.sch-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.lg-sw {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.lg-talk { background: linear-gradient(135deg, #ffffff 0%, #f1faf3 100%); border-left: 3px solid var(--green); }
+.lg-music { background: linear-gradient(135deg, #fff8ec 0%, #ffeed1 100%); border-left: 3px solid #d99033; }
+.lg-flagship { background: linear-gradient(135deg, #1ea03e, #167f30); }
+.lg-celebrate { background: linear-gradient(135deg, #fff3d6, #ffd98a); border-left: 3px solid #d49021; }
+.lg-sport { background: linear-gradient(135deg, #eaf2ff, #d3e2ff); border-left: 3px solid #3266c7; }
+.lg-doc { background: linear-gradient(135deg, #f3eaff, #e1ccff); border-left: 3px solid #6f47c1; }
+
+@media (max-width: 900px) {
+  .schedule-wrap { padding: 0 16px; }
+  .schedule {
+    --time-w: 58px;
+    --row-h: 56px;
+    padding: 10px;
+    gap: 3px;
+  }
+  .sch-day { font-size: 11px; letter-spacing: 0.08em; }
+  .sh-title { font-size: 12px; }
+  .sh-title-lg { font-size: 18px; }
+  .sh-host { font-size: 10.5px; }
+  .sch-time { font-size: 11px; }
+  .sch-band { font-size: 13px; letter-spacing: 0.12em; }
+  .sch-band .sb-range { display: none; }
+}
+
 /* =================== ROUTING =================== */
 .route-page[hidden] { display: none !important; }
 .back-home { display: none; }
@@ -1400,19 +1660,169 @@ body.is-inner .back-home { display: inline-flex; }
     </div>
   </main>
 
-  <main id="route-programas" data-route-page="programas" class="route-page" hidden>
+    <main id="route-programas" data-route-page="programas" class="route-page" hidden>
     <section class="page-hero">
-      <span class="page-eyebrow">Grilla</span>
+      <span class="page-eyebrow">Grilla semanal</span>
       <h1>Nuestros <span class="accent">programas</span></h1>
       <p class="page-lead">Música, palabra y compañía las 24 horas del día.</p>
     </section>
-    <div class="page-content">
-      <div class="placeholder-card">
-        <svg class="placeholder-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a9 9 0 0 0-9 9v7a3 3 0 0 0 3 3h3v-8H5v-2a7 7 0 0 1 14 0v2h-4v8h3a3 3 0 0 0 3-3v-7a9 9 0 0 0-9-9z"/></svg>
-        <h2>Próximamente</h2>
-        <p>Estamos armando la grilla completa con los horarios y conductores de cada programa. Volvé pronto para encontrar tu próximo programa favorito.</p>
-        <a href="#" class="back-link" data-route-link="home">← Volver al inicio</a>
+
+    <div class="schedule-wrap">
+      <div class="schedule" role="table" aria-label="Programación semanal Radio Elet">
+
+        <div class="sch-corner" role="rowheader">
+          <span class="sc-hint">Hora</span>
+        </div>
+        <div class="sch-day">Lun</div>
+        <div class="sch-day">Mar</div>
+        <div class="sch-day">Mié</div>
+        <div class="sch-day">Jue</div>
+        <div class="sch-day">Vie</div>
+        <div class="sch-day sch-day-weekend">Sáb</div>
+        <div class="sch-day sch-day-weekend">Dom</div>
+
+        <!-- ============ MAÑANA ============ -->
+        <div class="sch-band sch-band-morning">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 7a5 5 0 1 0 5 5 5 5 0 0 0-5-5m0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3m0-13a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1m0 17a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1M5.6 6.34a1 1 0 0 0-1.41-1.41 1 1 0 0 0 0 1.41l1.41 1.41a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41M17.66 18a1 1 0 0 0-1.41 1.41l1.41 1.41a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41M22 11h-2a1 1 0 0 0 0 2h2a1 1 0 0 0 0-2M3 12a1 1 0 0 0-1-1H0a1 1 0 0 0 0 2h2a1 1 0 0 0 1-1m15.95-6.34a1 1 0 0 0-1.41 0L16.13 7.07a1 1 0 0 0 1.41 1.41l1.41-1.41a1 1 0 0 0 0-1.41M5.6 17.66l-1.41 1.41a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0L7.01 19.07a1 1 0 0 0-1.41-1.41z"/></svg>
+          <span>Mañana</span>
+          <span class="sb-range">03 — 13 h</span>
+        </div>
+
+        <div class="sch-time">3:00</div>
+        <div class="sch-show s-talk" style="grid-column: span 7;">
+          <span class="sh-title">Una Palabra de Vida</span>
+          <span class="sh-host">PS. Ariana Juniors</span>
+        </div>
+
+        <div class="sch-time">3:05</div>
+        <div class="sch-show s-music" style="grid-column: span 7; grid-row: span 3;">
+          <span class="sh-title">Mi Mejor Tiempo con Dios</span>
+          <span class="sh-host">Devocional musical</span>
+        </div>
+        <div class="sch-time">4:00</div>
+        <div class="sch-time">5:00</div>
+
+        <div class="sch-time">6:00</div>
+        <div class="sch-show s-talk" style="grid-column: span 7;">
+          <span class="sh-title">Una Palabra de Vida</span>
+          <span class="sh-host">PS. Ariana Juniors</span>
+        </div>
+
+        <div class="sch-time">7:00</div>
+        <div class="sch-show s-talk" style="grid-column: span 7;">
+          <span class="sh-title">Gotitas de Luz</span>
+          <span class="sh-host">PS. Adrian Juniors</span>
+        </div>
+
+        <!-- 8:30 → 13:00 — La Mañana on weekdays, weekend pattern on right -->
+        <div class="sch-time">8:30</div>
+        <div class="sch-show s-flagship" style="grid-column: span 5; grid-row: span 6;">
+          <span class="sh-eyebrow">Programa central</span>
+          <span class="sh-title sh-title-lg">La Mañana de la Radio</span>
+          <span class="sh-host">De lunes a viernes — música, noticias e invitados</span>
+        </div>
+        <div class="sch-cell sch-empty" style="grid-column: span 2;"></div>
+
+        <div class="sch-time">9:00</div>
+        <div class="sch-cell sch-empty"></div>
+        <div class="sch-show s-celebrate" style="grid-row: span 2;">
+          <span class="sh-title">Celebra los Domingos</span>
+          <span class="sh-host">Alabanza dominical</span>
+        </div>
+
+        <div class="sch-time">10:00</div>
+        <div class="sch-cell sch-empty"></div>
+
+        <div class="sch-time">11:00</div>
+        <div class="sch-cell sch-empty" style="grid-column: span 2;"></div>
+
+        <div class="sch-time">12:00</div>
+        <div class="sch-show s-talk" style="grid-column: span 2;">
+          <span class="sh-title">Una Palabra de Vida</span>
+          <span class="sh-host">PS. Ariana Juniors</span>
+        </div>
+
+        <div class="sch-time">13:00</div>
+        <div class="sch-show s-sport" style="grid-column: span 2;">
+          <span class="sh-title">Ráfaga Deportiva</span>
+        </div>
+
+        <!-- ============ TARDE ============ -->
+        <div class="sch-band sch-band-afternoon">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41M1 10.5h3v2H1v-2M11 .55h2V3.5h-2V.55m8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408 1.79-1.79M17.24 18.16l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4M20 10.5h3v2h-3v-2m-8-5a6 6 0 0 1 6 6 6 6 0 0 1-6 6 6 6 0 0 1-6-6 6 6 0 0 1 6-6m-1 18.45h2V20.5h-2v2.95M3.55 18.54l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/></svg>
+          <span>Tarde</span>
+          <span class="sb-range">14 — 19 h</span>
+        </div>
+
+        <div class="sch-time">14:00</div>
+        <div class="sch-cell sch-empty" style="grid-column: span 7;"></div>
+
+        <div class="sch-time">15:00</div>
+        <div class="sch-show s-talk" style="grid-column: span 5; grid-row: span 2;">
+          <span class="sh-title">Una Palabra de Vida</span>
+          <span class="sh-host">PS. Ariana Juniors</span>
+        </div>
+        <div class="sch-show s-celebrate" style="grid-column: span 2; grid-row: span 2;">
+          <span class="sh-title">Celebra los Domingos</span>
+        </div>
+
+        <div class="sch-time">16:00</div>
+
+        <div class="sch-time">17:00</div>
+        <div class="sch-show s-sport"><span class="sh-title">Ráfaga Deportiva</span></div>
+        <div class="sch-show s-doc"><span class="sh-title">Argentina, tierra con propósito</span></div>
+        <div class="sch-show s-sport"><span class="sh-title">Ráfaga Deportiva</span></div>
+        <div class="sch-show s-doc"><span class="sh-title">Argentina, tierra con propósito</span></div>
+        <div class="sch-show s-sport" style="grid-column: span 3;"><span class="sh-title">Ráfaga Deportiva</span></div>
+
+        <div class="sch-time">18:00</div>
+        <div class="sch-show s-talk" style="grid-column: span 7;">
+          <span class="sh-title">Una Palabra de Vida</span>
+          <span class="sh-host">PS. Ariana Juniors</span>
+        </div>
+
+        <!-- ============ NOCHE ============ -->
+        <div class="sch-band sch-band-night">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.75 4.09l-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85a8.97 8.97 0 0 1-7.31 3.74 8.99 8.99 0 0 1-9-9 9.13 9.13 0 0 1 3.69-7.26c.74-.55 1.94.39 1.83 1.26-.41 4.13 2.46 7.94 6.81 8.81.32.06.94.13 1.31.16.26.03.46.45.48.44z"/></svg>
+          <span>Noche</span>
+          <span class="sb-range">19 — 03 h</span>
+        </div>
+
+        <div class="sch-time">19:00</div>
+        <div class="sch-show s-talk-night" style="grid-column: span 7;">
+          <span class="sh-title">Gotitas de Luz</span>
+          <span class="sh-host">PS. Adrian Juniors</span>
+        </div>
+
+        <div class="sch-time">21:00</div>
+        <div class="sch-show s-sport"><span class="sh-title">Ráfaga Deportiva</span></div>
+        <div class="sch-cell sch-empty"></div>
+        <div class="sch-show s-sport"><span class="sh-title">Ráfaga Deportiva</span></div>
+        <div class="sch-cell sch-empty"></div>
+        <div class="sch-show s-sport" style="grid-column: span 3;"><span class="sh-title">Ráfaga Deportiva</span></div>
+
+        <div class="sch-time">22:00</div>
+        <div class="sch-show s-talk-night" style="grid-column: span 7;">
+          <span class="sh-title">Gotitas de Luz</span>
+          <span class="sh-host">PS. Adrian Juniors</span>
+        </div>
+
+        <div class="sch-time">00:00</div>
+        <div class="sch-show s-talk-night" style="grid-column: span 7;">
+          <span class="sh-title">Una Palabra de Vida</span>
+          <span class="sh-host">PS. Ariana Juniors</span>
+        </div>
+
       </div>
+
+      <ul class="sch-legend" aria-label="Referencias">
+        <li><span class="lg-sw lg-talk"></span> Palabra &amp; devocional</li>
+        <li><span class="lg-sw lg-music"></span> Música</li>
+        <li><span class="lg-sw lg-flagship"></span> Programa central</li>
+        <li><span class="lg-sw lg-celebrate"></span> Adoración</li>
+        <li><span class="lg-sw lg-sport"></span> Deportes</li>
+        <li><span class="lg-sw lg-doc"></span> Documental</li>
+      </ul>
     </div>
   </main>
 
