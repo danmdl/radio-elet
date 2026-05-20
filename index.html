@@ -1083,6 +1083,48 @@ img { display: block; max-width: 100%; }
 }
 .schedule > * { position: relative; z-index: 1; }
 
+/* Now-on-air line (TV-guide style), positioned by JS at the current Buenos Aires time */
+.sch-now {
+  position: absolute;
+  left: var(--time-w);
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #e63946 0%, #d62828 100%);
+  z-index: 6;
+  pointer-events: none;
+  transform: translateY(-9999px);
+  transition: transform 0.4s ease;
+  box-shadow: 0 0 14px rgba(230, 57, 70, 0.35);
+}
+.sch-now::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: -5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e63946;
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.25);
+  animation: pulse 1.6s infinite;
+}
+.sch-now-label {
+  position: absolute;
+  left: 10px;
+  top: -11px;
+  background: #e63946;
+  color: white;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  padding: 3px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 10px rgba(230, 57, 70, 0.35);
+}
+
 .schedule {
   --time-w: 78px;
   --row-h: 64px;
@@ -1998,6 +2040,127 @@ body.is-inner .back-home { display: inline-flex; }
 
   window.addEventListener('hashchange', render);
   render();
+})();
+</script>
+
+  <script>
+/* "Al aire" indicator — places a TV-guide-style red line on the Programas schedule
+   at the current Buenos Aires time, and auto-scrolls to it when the tab is active. */
+(function () {
+  const TZ = 'America/Argentina/Buenos_Aires';
+  const SCHEDULE_START_MIN = 3 * 60; // 03:00
+  const DAY_MIN = 24 * 60;
+
+  function baMinutes() {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: TZ, hour12: false, hour: '2-digit', minute: '2-digit'
+    });
+    const parts = fmt.formatToParts(new Date());
+    const h = parseInt(parts.find(p => p.type === 'hour').value, 10);
+    const m = parseInt(parts.find(p => p.type === 'minute').value, 10);
+    return h * 60 + m; // 0..1439
+  }
+
+  function toScheduleOffset(absMin) {
+    let o = absMin - SCHEDULE_START_MIN;
+    if (o < 0) o += DAY_MIN;
+    return o; // 0 = 03:00, 1260 = 00:00 (midnight, day rolls over)
+  }
+
+  function parseTimeText(txt) {
+    const [h, m] = txt.trim().split(':').map(n => parseInt(n, 10));
+    return toScheduleOffset(h * 60 + (m || 0));
+  }
+
+  function ensureLine(schedule) {
+    let line = schedule.querySelector('.sch-now');
+    if (!line) {
+      line = document.createElement('div');
+      line.className = 'sch-now';
+      line.innerHTML = '<span class="sch-now-label">Al aire</span>';
+      schedule.appendChild(line);
+    }
+    return line;
+  }
+
+  function update() {
+    const programas = document.getElementById('route-programas');
+    if (!programas || programas.hidden) return;
+    const schedule = programas.querySelector('.schedule');
+    if (!schedule) return;
+
+    const timeEls = Array.from(schedule.querySelectorAll('.sch-time'));
+    if (!timeEls.length) return;
+
+    const rows = timeEls
+      .map(el => ({ el, min: parseTimeText(el.textContent) }))
+      .sort((a, b) => a.min - b.min);
+
+    const now = toScheduleOffset(baMinutes());
+    const first = rows[0];
+    const last = rows[rows.length - 1];
+
+    let prev = first, next = rows[1] || first;
+    if (now >= last.min) {
+      prev = rows[rows.length - 2] || last;
+      next = last;
+    } else if (now > first.min) {
+      for (let i = 0; i < rows.length - 1; i++) {
+        if (rows[i].min <= now && rows[i + 1].min > now) {
+          prev = rows[i];
+          next = rows[i + 1];
+          break;
+        }
+      }
+    }
+
+    const schRect = schedule.getBoundingClientRect();
+    const prevTop = prev.el.getBoundingClientRect().top - schRect.top;
+    const nextTop = next.el.getBoundingClientRect().top - schRect.top;
+    const denom = (next.min - prev.min) || 1;
+    let frac = (now - prev.min) / denom;
+    frac = Math.max(0, Math.min(1.05, frac)); // tiny overshoot ok past last row
+    const y = prevTop + (nextTop - prevTop) * frac;
+
+    const line = ensureLine(schedule);
+    line.style.transform = `translateY(${y}px)`;
+  }
+
+  function scrollToNow() {
+    const line = document.querySelector('#route-programas .sch-now');
+    if (!line) return;
+    const rect = line.getBoundingClientRect();
+    const targetY = window.scrollY + rect.top - window.innerHeight * 0.35;
+    window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+  }
+
+  function isProgramas() {
+    return (location.hash || '').replace(/^#/, '') === 'programas';
+  }
+
+  let scrolledOnce = false;
+  function refresh(scroll) {
+    if (!isProgramas()) { scrolledOnce = false; return; }
+    requestAnimationFrame(() => {
+      update();
+      if (scroll && !scrolledOnce) {
+        requestAnimationFrame(() => {
+          scrollToNow();
+          scrolledOnce = true;
+        });
+      }
+    });
+  }
+
+  window.addEventListener('hashchange', () => refresh(true));
+  window.addEventListener('resize', () => refresh(false));
+  setInterval(() => refresh(false), 60 * 1000);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => refresh(true));
+  } else {
+    refresh(true);
+  }
 })();
 </script>
 
