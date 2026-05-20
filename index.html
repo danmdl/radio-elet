@@ -1053,11 +1053,35 @@ img { display: block; max-width: 100%; }
 .back-link:hover { background: var(--green); color: white; }
 
 /* =================== SCHEDULE GRID =================== */
+/* Hide the title block only on the Programas tab so the grid starts right under the nav */
+#route-programas > .page-hero { display: none; }
+
 .schedule-wrap {
   max-width: 1280px;
-  margin: 0 auto 64px;
+  margin: 16px auto 64px;
   padding: 0 32px;
 }
+
+/* Vertical day column guides that extend the full height of the grid */
+.schedule { position: relative; }
+.schedule::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--time-w);
+  right: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc(100% / 7 - 1px),
+    rgba(30, 160, 62, 0.18) calc(100% / 7 - 1px),
+    rgba(30, 160, 62, 0.18) calc(100% / 7)
+  );
+}
+.schedule > * { position: relative; z-index: 1; }
 
 .schedule {
   --time-w: 78px;
@@ -1100,6 +1124,10 @@ img { display: block; max-width: 100%; }
   color: var(--text);
   height: 44px;
   align-self: start;
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .sch-corner {
   background: transparent;
