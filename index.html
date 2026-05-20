@@ -2052,13 +2052,21 @@ body.is-inner .back-home { display: inline-flex; }
   const DAY_MIN = 24 * 60;
 
   function baMinutes() {
-    const fmt = new Intl.DateTimeFormat('en-US', {
+    const str = new Date().toLocaleTimeString('es-AR', {
       timeZone: TZ, hour12: false, hour: '2-digit', minute: '2-digit'
     });
-    const parts = fmt.formatToParts(new Date());
-    const h = parseInt(parts.find(p => p.type === 'hour').value, 10);
-    const m = parseInt(parts.find(p => p.type === 'minute').value, 10);
-    return h * 60 + m; // 0..1439
+    const m = str.match(/(\d{1,2}):(\d{2})/);
+    if (!m) return 0;
+    const hh = parseInt(m[1], 10) % 24; // some browsers return "24" for midnight
+    const mm = parseInt(m[2], 10);
+    return hh * 60 + mm;
+  }
+
+  function formatBA() {
+    const total = baMinutes();
+    const hh = String(Math.floor(total / 60)).padStart(2, '0');
+    const mm = String(total % 60).padStart(2, '0');
+    return `${hh}:${mm}`;
   }
 
   function toScheduleOffset(absMin) {
@@ -2077,9 +2085,11 @@ body.is-inner .back-home { display: inline-flex; }
     if (!line) {
       line = document.createElement('div');
       line.className = 'sch-now';
-      line.innerHTML = '<span class="sch-now-label">Al aire</span>';
+      line.innerHTML = '<span class="sch-now-label">AL AIRE · <span class="sch-now-time"></span> BA</span>';
       schedule.appendChild(line);
     }
+    const t = line.querySelector('.sch-now-time');
+    if (t) t.textContent = formatBA();
     return line;
   }
 
