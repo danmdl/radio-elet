@@ -125,6 +125,40 @@ body > .footer { flex-shrink: 0; }
   outline-offset: 3px;
 }
 
+/* Defensive: nuke any outline/border that may leak in on Windows browsers
+   (some Edge/Chromium versions show a red focus ring on link groups even
+   without keyboard focus). */
+.footer-socials,
+.footer-socials *,
+.footer-socials *:focus,
+.footer-socials *:focus-visible,
+.footer-socials *:focus-within,
+.footer-socials *:hover,
+.footer-socials *:active,
+.footer-socials *:visited,
+.socials,
+.socials *,
+.socials *:focus,
+.socials *:focus-visible,
+.socials *:focus-within,
+.socials *:hover,
+.socials *:active {
+  outline: 0 !important;
+  outline-offset: 0 !important;
+  -moz-outline-radius: 0 !important;
+  border-color: transparent !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+.footer-socials a,
+.socials a {
+  text-decoration: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.footer-socials a:hover {
+  box-shadow: none !important;
+}
+
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 img { display: block; max-width: 100%; }
