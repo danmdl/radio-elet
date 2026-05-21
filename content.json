@@ -1,0 +1,52 @@
+{
+  "historia": {
+    "eyebrow": "Nuestra esencia",
+    "title": { "prefix": "Una ", "accent": "historia", "suffix": " que sigue creciendo" },
+    "lead": "Más de dos décadas transmitiendo esperanza, fe y amor a toda la región.",
+    "notes": [
+      {
+        "title": "Próximamente",
+        "body": "Estamos reuniendo los hitos, las voces y las historias que dieron forma a Radio Elet desde sus inicios hasta hoy."
+      }
+    ]
+  },
+  "agenda": {
+    "eyebrow": "Movimiento Juvenil Adventista",
+    "title": { "prefix": "Agenda ", "accent": "MJA", "suffix": "" },
+    "lead": "Encuentros, congresos y eventos que transforman vidas.",
+    "notes": [
+      {
+        "title": "Próximamente",
+        "body": "Pronto vas a encontrar acá todas las fechas, encuentros y actividades del Movimiento Juvenil Adventista para sumarte y participar."
+      }
+    ]
+  },
+  "noticias": {
+    "eyebrow": "Noticias",
+    "title": { "prefix": "Noticias del ", "accent": "Cielo", "suffix": "" },
+    "lead": "Información que edifica, inspira y acompaña tu día a día.",
+    "notes": [
+      {
+        "title": "Próximamente",
+        "body": "Pronto vas a encontrar acá noticias, testimonios y reflexiones que renuevan la fe cada día."
+      }
+    ]
+  },
+  "jesus": {
+    "eyebrow": "Una invitación",
+    "title": { "prefix": "¿Querés conocer a ", "accent": "Jesús", "suffix": "?" },
+    "lead": "Él cambió millones de vidas. Hoy también puede cambiar la tuya.",
+    "notes": [
+      {
+        "title": "Próximamente",
+        "body": "Estamos preparando un espacio para acompañarte: estudios bíblicos, contacto pastoral y comunidad cerca tuyo."
+      }
+    ]
+  },
+  "programas": {
+    "eyebrow": "Grilla semanal",
+    "title": { "prefix": "Nuestros ", "accent": "programas", "suffix": "" },
+    "lead": "Música, palabra y compañía las 24 horas del día.",
+    "notes": []
+  }
+}

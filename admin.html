@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin · Radio Elet Vida FM 99.3</title>
+  <meta name="robots" content="noindex, nofollow"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #1ea03e;
+      --green-dark: #167f30;
+      --green-darker: #0f5e23;
+      --green-bright: #5cdd5c;
+      --green-soft: #e8f7ea;
+      --bg: #ffffff;
+      --bg-soft: #f5f8f5;
+      --text: #1a1a1a;
+      --text-soft: #444;
+      --muted: #888;
+      --border: #e3e6e3;
+      --danger: #d62828;
+    }
+
+    html, body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(30,160,62,0.06) 0%, transparent 70%),
+        linear-gradient(180deg, #ecefec 0%, #f4f7f5 35%, #f4f7f5 65%, #d9e8dc 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    a { color: var(--green-dark); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+    input, textarea, select { font-family: inherit; font-size: 14px; }
+
+    /* ==================== LOGIN ==================== */
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 20px 60px -20px rgba(30,160,62,0.25);
+      text-align: center;
+    }
+    .login-card .brand {
+      font-family: "Oswald", system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+    .login-card h1 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .login-card p {
+      color: var(--text-soft);
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .login-card input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s;
+      text-align: center;
+      letter-spacing: 0.08em;
+    }
+    .login-card input:focus { border-color: var(--green); }
+    .login-card .err {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 10px;
+      min-height: 18px;
+    }
+    .login-card button {
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px;
+      background: var(--green);
+      color: white;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.04em;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .login-card button:hover { background: var(--green-dark); }
+    .login-card button:active { transform: translateY(1px); }
+
+    /* ==================== EDITOR LAYOUT ==================== */
+    .editor { min-height: 100vh; display: flex; flex-direction: column; }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+    .topbar .brand {
+      font-family: "Oswald", system-ui, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--green);
+      font-size: 16px;
+    }
+    .topbar .crumb {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .topbar .spacer { flex: 1; }
+    .topbar .saved {
+      font-size: 12px;
+      color: var(--green);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .topbar .saved.show { opacity: 1; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--bg-soft);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .btn:hover { background: white; border-color: var(--green); color: var(--green-dark); }
+    .btn.primary {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+    .btn.primary:hover { background: var(--green-dark); border-color: var(--green-dark); color: white; }
+    .btn.danger { color: var(--danger); border-color: rgba(214, 40, 40, 0.3); }
+    .btn.danger:hover { background: rgba(214, 40, 40, 0.06); color: var(--danger); border-color: var(--danger); }
+    .btn.ghost { background: transparent; border-color: transparent; }
+    .btn.ghost:hover { background: var(--bg-soft); border-color: transparent; }
+    .btn svg { width: 14px; height: 14px; }
+
+    .layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      gap: 24px;
+    }
+
+    .sidenav {
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      height: fit-content;
+      position: sticky;
+      top: 80px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+    .sidenav-title {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 12px;
+      font-weight: 600;
+    }
+    .sidenav button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .sidenav button:hover { background: var(--bg-soft); }
+    .sidenav button.active {
+      background: var(--green-soft);
+      color: var(--green-darker);
+      font-weight: 600;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 12px;
+      padding: 28px 32px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      min-height: 400px;
+    }
+    .panel h2 {
+      font-family: "Oswald", system-ui, sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+    }
+    .panel .panel-sub {
+      color: var(--text-soft);
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    .field { margin-bottom: 18px; }
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+    .field-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.15s;
+      background: white;
+      color: var(--text);
+    }
+    .field textarea { resize: vertical; min-height: 80px; }
+    .field input:focus,
+    .field textarea:focus { border-color: var(--green); }
+
+    /* Title row with three fields */
+    .title-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1.2fr;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .title-row .accent-field input {
+      background: var(--green-soft);
+      color: var(--green-darker);
+      font-weight: 600;
+      border-color: rgba(30,160,62,0.25);
+    }
+
+    /* Section header */
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 14px;
+    }
+    .section-head h3 {
+      font-family: "Oswald", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .section-head .line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Notes */
+    .note {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .note-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .note-head .idx {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--green);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .note-head .spacer { flex: 1; }
+    .note .field { margin-bottom: 10px; }
+    .note .field:last-child { margin-bottom: 0; }
+    .add-note {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      color: var(--text-soft);
+      font-size: 14px;
+      font-weight: 500;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      background: transparent;
+    }
+    .add-note:hover {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green-dark);
+    }
+
+    .programas-warn {
+      background: linear-gradient(135deg, #fff8ec 0%, #fff2d6 100%);
+      border: 1px solid #f0d486;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #7a4a14;
+    }
+    .programas-warn strong { color: #5a3408; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 1fr; padding: 16px; }
+      .sidenav { position: static; }
+      .sidenav button { display: inline-block; width: auto; margin-right: 6px; }
+      .title-row { grid-template-columns: 1fr; }
+      .panel { padding: 20px; }
+      .topbar { padding: 10px 14px; flex-wrap: wrap; gap: 10px; }
+      .topbar .crumb { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== LOGIN ==================== -->
+  <div id="login" class="login-screen">
+    <form class="login-card" id="login-form">
+      <div class="brand">Elet · Admin</div>
+      <h1>Acceso administrador</h1>
+      <p>Ingresá tu contraseña para editar el contenido.</p>
+      <input type="password" id="pwd" autocomplete="current-password" placeholder="••••••••" autofocus required/>
+      <div class="err" id="err"></div>
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+
+  <!-- ==================== EDITOR ==================== -->
+  <div id="editor" class="editor hidden">
+
+    <div class="topbar">
+      <span class="brand">Elet · Admin</span>
+      <span class="crumb" id="crumb">Historia</span>
+      <span class="saved" id="saved">✓ Guardado</span>
+      <span class="spacer"></span>
+      <button class="btn ghost" id="reload" title="Recargar últimos cambios publicados (descartando borradores locales)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>
+        Descartar borrador
+      </button>
+      <label class="btn" for="import-file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Cargar JSON
+      </label>
+      <input type="file" id="import-file" accept="application/json" style="display:none"/>
+      <button class="btn primary" id="export">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Descargar publicación
+      </button>
+      <a class="btn" href="/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+        Ver sitio
+      </a>
+      <button class="btn danger" id="logout" title="Cerrar sesión">Salir</button>
+    </div>
+
+    <div class="layout">
+      <aside class="sidenav">
+        <div class="sidenav-title">Solapas</div>
+        <button data-tab="historia">Historia</button>
+        <button data-tab="programas">Programas</button>
+        <button data-tab="agenda">Agenda MJA</button>
+        <button data-tab="noticias">Noticias del Cielo</button>
+        <button data-tab="jesus">¿Querés conocer a Jesús?</button>
+      </aside>
+
+      <main class="panel" id="panel">
+        <!-- Filled dynamically by JS -->
+      </main>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ==================== CONFIG ==================== */
+    const PASS_HASH = '5312483a9608c7f943cde4dfd7b99ce2f89f39f5da5a5178faf880b2fea02dfe';
+    const STORAGE_KEY = 'elet_admin_content_draft';
+    const AUTH_KEY = 'elet_admin_authed';
+
+    const TABS = [
+      { id: 'historia',  label: 'Historia' },
+      { id: 'programas', label: 'Programas' },
+      { id: 'agenda',    label: 'Agenda MJA' },
+      { id: 'noticias',  label: 'Noticias del Cielo' },
+      { id: 'jesus',     label: '¿Querés conocer a Jesús?' },
+    ];
+
+    /* ==================== STATE ==================== */
+    let content = null;
+    let activeTab = 'historia';
+    let saveTimer = null;
+
+    /* ==================== UTILS ==================== */
+    async function sha256(str) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function $(sel, root = document) { return root.querySelector(sel); }
+    function $$(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
+
+    function flashSaved() {
+      const el = $('#saved');
+      el.classList.add('show');
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => el.classList.remove('show'), 900);
+    }
+
+    function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
+      flashSaved();
+    }
+
+    function defaultTabContent(id) {
+      return {
+        eyebrow: '',
+        title: { prefix: '', accent: '', suffix: '' },
+        lead: '',
+        notes: [],
+      };
+    }
+
+    async function loadContent() {
+      // Prefer local draft if it exists
+      const draft = localStorage.getItem(STORAGE_KEY);
+      if (draft) {
+        try { content = JSON.parse(draft); } catch (e) { content = null; }
+      }
+      if (!content) {
+        try {
+          const res = await fetch('content.json?v=' + Date.now());
+          content = res.ok ? await res.json() : {};
+        } catch (e) { content = {}; }
+      }
+      // Ensure every tab has a shape
+      TABS.forEach(t => { if (!content[t.id]) content[t.id] = defaultTabContent(t.id); });
+    }
+
+    /* ==================== AUTH ==================== */
+    async function attemptLogin(pwd) {
+      const h = await sha256(pwd);
+      return h === PASS_HASH;
+    }
+
+    function setAuthed(v) {
+      if (v) sessionStorage.setItem(AUTH_KEY, '1');
+      else sessionStorage.removeItem(AUTH_KEY);
+    }
+    function isAuthed() { return sessionStorage.getItem(AUTH_KEY) === '1'; }
+
+    $('#login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pwd = $('#pwd').value;
+      const err = $('#err');
+      err.textContent = '';
+      const ok = await attemptLogin(pwd);
+      if (ok) {
+        setAuthed(true);
+        await enterEditor();
+      } else {
+        err.textContent = 'Contraseña incorrecta.';
+        $('#pwd').select();
+      }
+    });
+
+    $('#logout').addEventListener('click', () => {
+      setAuthed(false);
+      location.reload();
+    });
+
+    /* ==================== EDITOR ==================== */
+    async function enterEditor() {
+      $('#login').classList.add('hidden');
+      $('#editor').classList.remove('hidden');
+      await loadContent();
+      renderTab(activeTab);
+      wireSidenav();
+    }
+
+    function wireSidenav() {
+      $$('.sidenav button').forEach(b => {
+        b.addEventListener('click', () => {
+          activeTab = b.dataset.tab;
+          renderTab(activeTab);
+        });
+      });
+    }
+
+    function escapeAttr(s) {
+      return String(s == null ? '' : s).replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
+    function escapeText(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function renderTab(id) {
+      $$('.sidenav button').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+      const meta = TABS.find(t => t.id === id);
+      $('#crumb').textContent = meta.label;
+      const data = content[id];
+      const t = data.title || { prefix: '', accent: '', suffix: '' };
+
+      const programasWarn = id === 'programas'
+        ? `<div class="programas-warn">
+             <strong>Sobre la solapa Programas:</strong> la grilla horaria (días de la semana, horarios y bandas de color) tiene una estructura técnica que no se edita acá. Editás el encabezado y podés sumar notas sueltas. Para cambios en la grilla, contactá al desarrollador.
+           </div>` : '';
+
+      const html = `
+        <h2>${escapeText(meta.label)}</h2>
+        <p class="panel-sub">Editá los textos de esta solapa. Los cambios se guardan automáticamente en este dispositivo.</p>
+        ${programasWarn}
+
+        <div class="field">
+          <label class="field-label">Antetítulo (encima del título)</label>
+          <input type="text" data-field="eyebrow" value="${escapeAttr(data.eyebrow)}" placeholder="Ej: Nuestra esencia"/>
+          <div class="field-hint">Texto corto en mayúscula que aparece arriba del título.</div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Título (con palabra resaltada en verde)</label>
+          <div class="title-row">
+            <div><input type="text" data-field="title.prefix" value="${escapeAttr(t.prefix)}" placeholder="Ej: Una "/></div>
+            <div class="accent-field"><input type="text" data-field="title.accent" value="${escapeAttr(t.accent)}" placeholder="Ej: historia"/></div>
+            <div><input type="text" data-field="title.suffix" value="${escapeAttr(t.suffix)}" placeholder="Ej: que sigue creciendo"/></div>
+          </div>
+          <div class="field-hint">La palabra del medio se muestra en verde claro en el sitio.</div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Bajada</label>
+          <textarea data-field="lead" rows="2" placeholder="Una frase corta debajo del título.">${escapeText(data.lead)}</textarea>
+        </div>
+
+        <div class="section-head">
+          <h3>Secciones / Notas</h3>
+          <span class="line"></span>
+          <span class="field-hint">${data.notes.length} ${data.notes.length === 1 ? 'nota' : 'notas'}</span>
+        </div>
+
+        <div id="notes-list"></div>
+
+        <button class="add-note" id="add-note">+ Agregar nota</button>
+      `;
+      $('#panel').innerHTML = html;
+
+      renderNotes();
+      wireFields();
+    }
+
+    function renderNotes() {
+      const list = $('#notes-list');
+      const data = content[activeTab];
+      if (!data.notes.length) {
+        list.innerHTML = '<p class="field-hint" style="text-align:center; padding: 16px 0;">Todavía no hay notas en esta solapa.</p>';
+        return;
+      }
+      list.innerHTML = data.notes.map((n, i) => `
+        <div class="note" data-note-idx="${i}">
+          <div class="note-head">
+            <div class="idx">${i + 1}</div>
+            <strong style="font-size: 13px;">${escapeText(n.title) || 'Nota sin título'}</strong>
+            <div class="spacer"></div>
+            ${i > 0 ? `<button class="btn ghost" data-act="up" title="Subir">↑</button>` : ''}
+            ${i < data.notes.length - 1 ? `<button class="btn ghost" data-act="down" title="Bajar">↓</button>` : ''}
+            <button class="btn danger" data-act="del" title="Eliminar nota">Eliminar</button>
+          </div>
+          <div class="field">
+            <label class="field-label">Título de la nota</label>
+            <input type="text" data-note-field="title" value="${escapeAttr(n.title)}" placeholder="Ej: Próximamente"/>
+          </div>
+          <div class="field">
+            <label class="field-label">Texto</label>
+            <textarea data-note-field="body" rows="4" placeholder="El contenido de la nota...">${escapeText(n.body)}</textarea>
+          </div>
+        </div>
+      `).join('');
+
+      // Wire note inputs
+      $$('#notes-list .note').forEach(noteEl => {
+        const idx = parseInt(noteEl.dataset.noteIdx, 10);
+        $$('[data-note-field]', noteEl).forEach(inp => {
+          const field = inp.dataset.noteField;
+          inp.addEventListener('input', () => {
+            content[activeTab].notes[idx][field] = inp.value;
+            persist();
+            // Refresh title badge in real time
+            if (field === 'title') {
+              const strong = noteEl.querySelector('.note-head strong');
+              if (strong) strong.textContent = inp.value || 'Nota sin título';
+            }
+          });
+        });
+        $$('[data-act]', noteEl).forEach(btn => {
+          btn.addEventListener('click', () => {
+            const act = btn.dataset.act;
+            const notes = content[activeTab].notes;
+            if (act === 'del') {
+              if (confirm('¿Eliminar esta nota?')) {
+                notes.splice(idx, 1);
+                persist();
+                renderTab(activeTab);
+              }
+            } else if (act === 'up' && idx > 0) {
+              [notes[idx - 1], notes[idx]] = [notes[idx], notes[idx - 1]];
+              persist();
+              renderTab(activeTab);
+            } else if (act === 'down' && idx < notes.length - 1) {
+              [notes[idx + 1], notes[idx]] = [notes[idx], notes[idx + 1]];
+              persist();
+              renderTab(activeTab);
+            }
+          });
+        });
+      });
+    }
+
+    function setByPath(obj, path, value) {
+      const parts = path.split('.');
+      let cur = obj;
+      for (let i = 0; i < parts.length - 1; i++) {
+        cur[parts[i]] = cur[parts[i]] || {};
+        cur = cur[parts[i]];
+      }
+      cur[parts[parts.length - 1]] = value;
+    }
+
+    function wireFields() {
+      $$('[data-field]', $('#panel')).forEach(inp => {
+        inp.addEventListener('input', () => {
+          setByPath(content[activeTab], inp.dataset.field, inp.value);
+          persist();
+        });
+      });
+      $('#add-note')?.addEventListener('click', () => {
+        content[activeTab].notes.push({ title: 'Nueva nota', body: '' });
+        persist();
+        renderTab(activeTab);
+        // Scroll to bottom
+        $('.panel').scrollTo?.({ top: $('.panel').scrollHeight, behavior: 'smooth' });
+      });
+    }
+
+    /* ==================== EXPORT / IMPORT ==================== */
+    $('#export').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'content.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    $('#import-file').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        if (typeof parsed !== 'object' || parsed === null) throw new Error('invalid');
+        content = parsed;
+        TABS.forEach(t => { if (!content[t.id]) content[t.id] = defaultTabContent(t.id); });
+        persist();
+        renderTab(activeTab);
+        alert('Publicación cargada.');
+      } catch (err) {
+        alert('No se pudo leer el archivo: ' + err.message);
+      } finally {
+        e.target.value = '';
+      }
+    });
+
+    $('#reload').addEventListener('click', async () => {
+      if (!confirm('Esto descarta cualquier borrador local y recarga la versión publicada actual. ¿Continuar?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      content = null;
+      await loadContent();
+      renderTab(activeTab);
+    });
+
+    /* ==================== INIT ==================== */
+    if (isAuthed()) {
+      enterEditor();
+    }
+  })();
+  </script>
+</body>
+</html>

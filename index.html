@@ -2325,5 +2325,67 @@ body.is-inner .back-home { display: inline-flex; }
 })();
 
 </script>
+
+<script>
+/* Content loader: fetches content.json and applies editable fields to inner-page tabs */
+(function () {
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function nl2br(s) { return esc(s).replace(/\n/g, '<br>'); }
+
+  function applyTab(id, data) {
+    const main = document.getElementById('route-' + id);
+    if (!main || !data) return;
+
+    const eyebrow = main.querySelector('.page-eyebrow');
+    if (eyebrow && data.eyebrow != null) eyebrow.textContent = data.eyebrow;
+
+    const h1 = main.querySelector('.page-hero h1');
+    if (h1 && data.title) {
+      const { prefix = '', accent = '', suffix = '' } = data.title;
+      h1.innerHTML = esc(prefix) + (accent
+        ? '<span class="accent">' + esc(accent) + '</span>'
+        : '') + esc(suffix);
+    }
+
+    const lead = main.querySelector('.page-lead');
+    if (lead && data.lead != null) lead.textContent = data.lead;
+
+    // Notes replace the placeholder-card on text-only inner pages.
+    // Programas keeps its schedule grid intact (no notes block targeted).
+    if (id !== 'programas' && Array.isArray(data.notes)) {
+      const slot = main.querySelector('.page-content') || main.querySelector('.placeholder-card')?.parentElement;
+      if (slot) {
+        if (data.notes.length === 0) {
+          slot.innerHTML = '<div class="placeholder-card"><h2>Próximamente</h2><p>Estamos preparando esta sección.</p><a href="#" class="back-link" data-route-link="home">← Volver al inicio</a></div>';
+        } else {
+          const cards = data.notes.map(n => (
+            '<article class="placeholder-card">' +
+              '<h2>' + esc(n.title || '') + '</h2>' +
+              '<p>' + nl2br(n.body || '') + '</p>' +
+            '</article>'
+          )).join('');
+          slot.innerHTML = cards +
+            '<div style="text-align:center; margin-top:18px;">' +
+              '<a href="#" class="back-link" data-route-link="home">← Volver al inicio</a>' +
+            '</div>';
+        }
+      }
+    }
+  }
+
+  function applyAll(content) {
+    if (!content || typeof content !== 'object') return;
+    Object.keys(content).forEach(k => applyTab(k, content[k]));
+  }
+
+  fetch('content.json?v=' + Date.now(), { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : null)
+    .then(data => { if (data) applyAll(data); })
+    .catch(() => { /* keep defaults */ });
+})();
+</script>
 </body>
 </html>
