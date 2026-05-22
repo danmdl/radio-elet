@@ -2482,5 +2482,23 @@ body.is-inner .back-home { display: inline-flex; }
     .catch(() => { /* keep defaults */ });
 })();
 </script>
+
+<script>
+/* Conditionally load the inline visual editor only on /admin (or ?admin=1).
+   Keeps the public site lean — editor.js/.css load only when needed. */
+(function () {
+  const p = location.pathname;
+  const isAdmin = (p === '/admin' || p === '/admin/' || location.search.includes('admin=1'));
+  if (!isAdmin) return;
+  const css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = '/editor.css?v=1';
+  document.head.appendChild(css);
+  const js = document.createElement('script');
+  js.src = '/editor.js?v=1';
+  js.defer = true;
+  document.body.appendChild(js);
+})();
+</script>
 </body>
 </html>

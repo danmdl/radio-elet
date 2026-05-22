@@ -1,0 +1,250 @@
+/* Inline visual editor for Radio Elet — loads only at /admin */
+/* Click-to-edit text directly on the live page, with drag-and-drop reordering
+   of notes & ticker items, plus +/× to add/remove. Save → publish via /api/publish. */
+
+[data-edit] {
+  outline: 1.5px dashed transparent;
+  outline-offset: 4px;
+  transition: outline-color 0.15s, background 0.15s;
+  cursor: text;
+  border-radius: 3px;
+  min-width: 0.5em;
+  min-height: 0.5em;
+}
+[data-edit]:hover {
+  outline-color: rgba(30, 160, 62, 0.45);
+  background: rgba(30, 160, 62, 0.04);
+}
+[data-edit]:focus {
+  outline: 2px solid #1ea03e;
+  outline-offset: 4px;
+  background: rgba(30, 160, 62, 0.06);
+}
+[data-edit].edit-accent:hover {
+  outline-color: rgba(92, 221, 92, 0.7);
+}
+[data-edit][data-empty="true"]:not(:focus)::before {
+  content: attr(data-placeholder);
+  color: #aaa;
+  font-style: italic;
+}
+
+/* List item shells (notes, ticker items) */
+.admin-row { position: relative; }
+.admin-row-controls {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 20;
+}
+.admin-row:hover .admin-row-controls,
+.admin-row:focus-within .admin-row-controls { opacity: 1; }
+
+.admin-btn {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  font-family: system-ui, sans-serif;
+  color: #1a1a1a;
+  line-height: 1;
+}
+.admin-btn:hover {
+  background: #e8f7ea;
+  border-color: #1ea03e;
+  color: #167f30;
+}
+.admin-btn.danger:hover {
+  background: #fef1f1;
+  border-color: #d62828;
+  color: #d62828;
+}
+
+.admin-grip {
+  position: absolute;
+  left: -32px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  font-size: 14px;
+  z-index: 30;
+}
+.admin-row:hover .admin-grip { opacity: 1; }
+.admin-grip:hover { color: #1ea03e; background: #e8f7ea; }
+.admin-row:active .admin-grip { cursor: grabbing; }
+
+.sortable-ghost { opacity: 0.4; }
+.sortable-chosen { box-shadow: 0 12px 30px rgba(30,160,62,0.25); }
+
+.admin-add-wrap { text-align: center; margin: 14px 0 4px; }
+.admin-add {
+  background: rgba(30, 160, 62, 0.06);
+  border: 2px dashed rgba(30, 160, 62, 0.45);
+  color: #167f30;
+  padding: 10px 22px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.admin-add:hover { background: rgba(30, 160, 62, 0.14); border-color: #1ea03e; }
+.admin-add:active { transform: scale(0.97); }
+
+/* ==================== LOGIN OVERLAY ==================== */
+.admin-login {
+  position: fixed; inset: 0;
+  background: rgba(10, 25, 12, 0.92);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100000;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: system-ui, sans-serif;
+}
+.admin-login .box {
+  background: white;
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: min(380px, 90vw);
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+.admin-login .brand {
+  font-weight: 700; font-size: 22px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: #1ea03e; margin-bottom: 10px;
+}
+.admin-login h1 { font-size: 17px; margin-bottom: 6px; font-weight: 600; }
+.admin-login p { color: #666; font-size: 13px; margin-bottom: 22px; }
+.admin-login input {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid #e3e6e3; border-radius: 10px;
+  font-size: 15px; outline: none;
+  transition: border-color 0.15s;
+  text-align: center; letter-spacing: 0.06em;
+  font-family: inherit;
+}
+.admin-login input:focus { border-color: #1ea03e; }
+.admin-login .err { color: #d62828; font-size: 13px; margin-top: 10px; min-height: 18px; }
+.admin-login button {
+  width: 100%; margin-top: 12px; padding: 12px;
+  background: #1ea03e; color: white;
+  border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+.admin-login button:hover { background: #167f30; }
+
+/* ==================== TOOLBAR ==================== */
+.admin-toolbar {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.22);
+  padding: 12px;
+  display: flex; flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+  font-family: system-ui, sans-serif;
+  width: 220px;
+  border: 1px solid #e3e6e3;
+}
+.admin-toolbar .tb-title {
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  font-weight: 700; color: #1ea03e;
+  padding-bottom: 6px; margin-bottom: 2px;
+  border-bottom: 1px solid #e3e6e3;
+}
+.admin-toolbar .tb-status {
+  font-size: 12px; color: #888;
+  padding: 6px 10px; border-radius: 6px;
+  background: #f5f8f5; text-align: center;
+}
+.admin-toolbar .tb-status.dirty { color: #c4632a; background: #fff8ec; }
+.admin-toolbar .tb-status.published { color: #167f30; background: #e8f7ea; }
+.admin-toolbar .tb-status .dot {
+  display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; background: currentColor;
+  margin-right: 6px; vertical-align: middle;
+}
+.admin-toolbar button, .admin-toolbar a {
+  padding: 9px 12px;
+  border: 1px solid #e3e6e3;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  background: white;
+  color: #1a1a1a;
+  text-decoration: none;
+  text-align: center;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+  font-weight: 500;
+}
+.admin-toolbar button:hover, .admin-toolbar a:hover {
+  background: #f5f8f5; border-color: #1ea03e; color: #167f30;
+}
+.admin-toolbar .tb-publish {
+  background: #1ea03e; color: white;
+  border-color: #1ea03e; font-weight: 600;
+}
+.admin-toolbar .tb-publish:hover {
+  background: #167f30; color: white; border-color: #167f30;
+}
+.admin-toolbar .tb-publish:disabled {
+  opacity: 0.6; cursor: wait;
+}
+.admin-toolbar .tb-row { display: flex; gap: 6px; }
+.admin-toolbar .tb-row > * { flex: 1; min-width: 0; }
+
+/* ==================== TOAST ==================== */
+.admin-toast {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translate(-50%, 16px);
+  background: #1a1a1a; color: white;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  opacity: 0;
+  transition: transform 0.25s, opacity 0.25s;
+  z-index: 100001;
+  pointer-events: none;
+  font-family: system-ui, sans-serif;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+}
+.admin-toast.show { transform: translate(-50%, 0); opacity: 1; }
+.admin-toast.ok { background: #1ea03e; }
+.admin-toast.err { background: #d62828; }
+
+/* Hide things that would interfere with editing */
+body.admin-mode .hero-dots,
+body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
+
+/* Make sure contenteditable elements look natural */
+[data-edit] { caret-color: #1ea03e; }
+[data-edit]:focus { caret-color: #1ea03e; }
