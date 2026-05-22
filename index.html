@@ -2301,6 +2301,12 @@ body.is-inner .back-home { display: inline-flex; }
   /* ---------- Play/pause ---------- */
   const PLAY_ICON = '<path d="M8 5v14l11-7z"/>';
   const PAUSE_ICON = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
+  const INTENT_KEY = 'elet_userintent_play';
+
+  // userIntentPlay tracks what the LISTENER asked for, independent of the
+  // browser's actual audio state. This way the player survives anything that
+  // might transiently pause the audio (route navigation, tab visibility, etc).
+  let userIntentPlay = sessionStorage.getItem(INTENT_KEY) === '1';
 
   function setPlaying(playing) {
     isPlaying = playing;
@@ -2312,6 +2318,8 @@ body.is-inner .back-home { display: inline-flex; }
   }
 
   function play() {
+    userIntentPlay = true;
+    sessionStorage.setItem(INTENT_KEY, '1');
     if (!audio.src || audio.src === '' || audio.src === window.location.href) {
       audio.src = streamUrl;
     }
@@ -2322,6 +2330,8 @@ body.is-inner .back-home { display: inline-flex; }
   }
 
   function pause() {
+    userIntentPlay = false;
+    sessionStorage.removeItem(INTENT_KEY);
     audio.pause();
     setPlaying(false);
   }
@@ -2331,10 +2341,49 @@ body.is-inner .back-home { display: inline-flex; }
     else play();
   }
 
+  // If anything pauses the audio (browser, OS, route change), and the listener
+  // still wants it on, try to resume.
+  function ensurePlaying() {
+    if (userIntentPlay && audio.paused) {
+      if (!audio.src || audio.src === window.location.href) audio.src = streamUrl;
+      audio.play().then(() => setPlaying(true)).catch(() => { /* autoplay blocked */ });
+    }
+  }
+
   buttons.forEach(btn => btn.addEventListener('click', toggle));
+
+  // Mirror real audio state in the UI (so the button always reflects truth)
+  audio.addEventListener('play',  () => setPlaying(true));
+  audio.addEventListener('pause', () => setPlaying(false));
   audio.addEventListener('ended', () => setPlaying(false));
   audio.addEventListener('error', () => setPlaying(false));
+
+  // Defensive resume hooks across SPA navigation / focus changes
+  window.addEventListener('hashchange', () => setTimeout(ensurePlaying, 60));
+  window.addEventListener('focus', ensurePlaying);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) ensurePlaying();
+  });
+
+  // OS-level media controls (iOS lock screen, Android notification, MacOS Now Playing)
+  if ('mediaSession' in navigator) {
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'En vivo — Radio Elet Vida FM 99.3',
+        artist: 'Radio Elet Vida',
+        album: 'Transmisión en vivo'
+      });
+      navigator.mediaSession.setActionHandler('play',  play);
+      navigator.mediaSession.setActionHandler('pause', pause);
+    } catch (_) { /* ignore */ }
+  }
+
+  // If the listener had it playing before a page reload, sync the UI state.
+  // Browser autoplay rules will block a real resume until a click, but the UI
+  // shows the intent so they know to tap play once.
+  if (userIntentPlay) setPlaying(false);
 })();
+
 
 </script>
 
