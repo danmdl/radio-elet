@@ -2327,34 +2327,125 @@ body.is-inner .back-home { display: inline-flex; }
 </script>
 
 <script>
-/* Content loader: fetches content.json and applies editable fields to inner-page tabs */
+/* Content loader: fetches content.json and applies editable fields to the site */
 (function () {
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
   function nl2br(s) { return esc(s).replace(/\n/g, '<br>'); }
+  function accentHTML(t) {
+    if (!t) return '';
+    const { prefix = '', accent = '', suffix = '' } = t;
+    return esc(prefix) + (accent ? '<span class="accent">' + esc(accent) + '</span>' : '') + esc(suffix);
+  }
+  function setText(el, val) { if (el && val != null) el.textContent = val; }
+  function setHTML(el, val) { if (el && val != null) el.innerHTML = val; }
 
-  function applyTab(id, data) {
+  function applyHome(data) {
+    if (!data) return;
+    const home = document.getElementById('route-home');
+    if (!home) return;
+
+    // Hero
+    if (data.hero) {
+      const h = data.hero;
+      const h1 = home.querySelector('.hero-text h1');
+      if (h1 && h.title) h1.innerHTML = accentHTML(h.title);
+      const tagline = home.querySelector('.hero-tagline p');
+      setHTML(tagline, nl2br(h.tagline || ''));
+      const cta = home.querySelector('.btn-listen .btn-text');
+      setText(cta, h.cta);
+      const live = home.querySelector('.photo-caption .pc-text');
+      setText(live, h.live_label);
+      const hint = home.querySelector('.hero-right .hint');
+      setText(hint, h.right_hint);
+      const rightAccent = home.querySelector('.hero-right h2 .accent');
+      setText(rightAccent, h.right_accent);
+      const rightSub = home.querySelector('.hero-right .sub');
+      setHTML(rightSub, nl2br(h.right_sub || ''));
+    }
+
+    // Ticker
+    if (data.ticker) {
+      const t = data.ticker;
+      const badge = home.querySelector('.ticker-badge');
+      setText(badge, t.badge);
+      const intro = home.querySelector('.ticker-intro');
+      setText(intro, t.intro);
+      const more = home.querySelector('.ticker-more');
+      setText(more, t.more);
+      const itemsWrap = home.querySelector('.ticker-items');
+      if (itemsWrap && Array.isArray(t.items)) {
+        const renderItem = (it, dup) => (
+          '<span class="ticker-item"' + (dup ? ' aria-hidden="true"' : '') + '>' +
+            '<span class="ti-time">' + esc(it.time || '') + '</span> ' +
+            esc(it.text || '') +
+          '</span>'
+        );
+        const visible = t.items.map(it => renderItem(it, false)).join('');
+        const duplicate = t.items.map(it => renderItem(it, true)).join('');
+        itemsWrap.innerHTML = visible + duplicate;
+      }
+    }
+
+    // Cards
+    if (Array.isArray(data.cards)) {
+      const cardEls = home.querySelectorAll('.cards-section .card');
+      data.cards.forEach((c, i) => {
+        const el = cardEls[i];
+        if (!el) return;
+        const label = el.querySelector('.card-label');
+        if (label) {
+          // Keep the leading <svg>, replace trailing text node
+          const svg = label.querySelector('svg');
+          label.innerHTML = '';
+          if (svg) label.appendChild(svg);
+          label.appendChild(document.createTextNode(' ' + (c.label || '')));
+        }
+        const h3 = el.querySelector('h3');
+        setText(h3, c.title);
+        const btn = el.querySelector('.card-btn');
+        setText(btn, c.button);
+      });
+    }
+  }
+
+  function applyFooter(data) {
+    if (!data) return;
+    const footer = document.querySelector('.footer');
+    if (!footer) return;
+
+    if (Array.isArray(data.items)) {
+      const itemEls = footer.querySelectorAll('.footer-item');
+      data.items.forEach((it, i) => {
+        const el = itemEls[i];
+        if (!el) return;
+        const title = el.querySelector('.ft-title');
+        const sub = el.querySelector('.ft-sub');
+        setText(title, it.title);
+        setText(sub, it.sub);
+      });
+    }
+    if (data.socials_label) {
+      const lbl = footer.querySelector('.footer-socials .lbl');
+      setText(lbl, data.socials_label);
+    }
+  }
+
+  function applyInner(id, data) {
     const main = document.getElementById('route-' + id);
     if (!main || !data) return;
 
     const eyebrow = main.querySelector('.page-eyebrow');
-    if (eyebrow && data.eyebrow != null) eyebrow.textContent = data.eyebrow;
+    setText(eyebrow, data.eyebrow);
 
     const h1 = main.querySelector('.page-hero h1');
-    if (h1 && data.title) {
-      const { prefix = '', accent = '', suffix = '' } = data.title;
-      h1.innerHTML = esc(prefix) + (accent
-        ? '<span class="accent">' + esc(accent) + '</span>'
-        : '') + esc(suffix);
-    }
+    if (h1 && data.title) h1.innerHTML = accentHTML(data.title);
 
     const lead = main.querySelector('.page-lead');
-    if (lead && data.lead != null) lead.textContent = data.lead;
+    setText(lead, data.lead);
 
-    // Notes replace the placeholder-card on text-only inner pages.
-    // Programas keeps its schedule grid intact (no notes block targeted).
     if (id !== 'programas' && Array.isArray(data.notes)) {
       const slot = main.querySelector('.page-content') || main.querySelector('.placeholder-card')?.parentElement;
       if (slot) {
@@ -2378,7 +2469,11 @@ body.is-inner .back-home { display: inline-flex; }
 
   function applyAll(content) {
     if (!content || typeof content !== 'object') return;
-    Object.keys(content).forEach(k => applyTab(k, content[k]));
+    if (content.home) applyHome(content.home);
+    if (content.footer) applyFooter(content.footer);
+    ['historia', 'programas', 'agenda', 'noticias', 'jesus'].forEach(k => {
+      if (content[k]) applyInner(k, content[k]);
+    });
   }
 
   fetch('content.json?v=' + Date.now(), { cache: 'no-store' })

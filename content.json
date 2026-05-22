@@ -1,4 +1,41 @@
 {
+  "home": {
+    "hero": {
+      "title": { "prefix": "Radio ", "accent": "que transforma", "suffix": " vidas" },
+      "tagline": "Transmitiendo esperanza,\nfe y amor las 24 horas.",
+      "cta": "Escuchá en vivo",
+      "live_label": "EN EL AIRE — FM 99.3",
+      "right_hint": "Un mensaje de",
+      "right_accent": "Esperanza",
+      "right_sub": "para tu vida\ntodos los días."
+    },
+    "ticker": {
+      "badge": "Ahora",
+      "intro": "Todo lo que pasa, todo el día",
+      "more": "Ver más noticias →",
+      "items": [
+        { "time": "20:00", "text": "Música cristiana sin pausa, las 24 horas en Elet Radio Vida" },
+        { "time": "21:30", "text": "Reflexión nocturna y palabra de aliento" },
+        { "time": "22:00", "text": "Voces de adoración — invitados en vivo" },
+        { "time": "06:00", "text": "Mañanas con esperanza — devocional diario" }
+      ]
+    },
+    "cards": [
+      { "label": "Programas", "title": "Música, palabra y compañía", "button": "Ver programas", "target": "programas" },
+      { "label": "Agenda MJA", "title": "Eventos que transforman", "button": "Ver agenda", "target": "agenda" },
+      { "label": "Noticias del Cielo", "title": "Información que edifica", "button": "Ver noticias", "target": "noticias" },
+      { "label": "¿Conocés a Jesús?", "title": "Él cambió millones de vidas", "button": "Quiero conocer más", "target": "jesus" }
+    ]
+  },
+  "footer": {
+    "items": [
+      { "title": "Escuchá Radio Elet 99.3", "sub": "Donde estés, cuando quieras." },
+      { "title": "En vivo", "sub": "24 horas." },
+      { "title": "Desde tu celular", "sub": "App y web." },
+      { "title": "Fe que inspira", "sub": "Esperanza que transforma." }
+    ],
+    "socials_label": "Seguinos"
+  },
   "historia": {
     "eyebrow": "Nuestra esencia",
     "title": { "prefix": "Una ", "accent": "historia", "suffix": " que sigue creciendo" },

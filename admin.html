@@ -21,6 +21,9 @@
       --muted: #888;
       --border: #e3e6e3;
       --danger: #d62828;
+      --amber-bg: #fff8ec;
+      --amber-bd: #f0d486;
+      --amber-tx: #7a4a14;
     }
 
     html, body {
@@ -33,341 +36,234 @@
       min-height: 100vh;
       line-height: 1.5;
     }
-
     a { color: var(--green-dark); text-decoration: none; }
     a:hover { text-decoration: underline; }
     button { cursor: pointer; font-family: inherit; border: none; background: none; }
     input, textarea, select { font-family: inherit; font-size: 14px; }
 
     /* ==================== LOGIN ==================== */
-    .login-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
+    .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
     .login-card {
-      background: white;
-      border-radius: 16px;
-      padding: 40px 36px;
-      width: 100%;
-      max-width: 380px;
+      background: white; border-radius: 16px; padding: 40px 36px;
+      width: 100%; max-width: 380px;
       box-shadow: 0 20px 60px -20px rgba(30,160,62,0.25);
       text-align: center;
     }
     .login-card .brand {
-      font-family: "Oswald", system-ui, sans-serif;
-      font-weight: 700;
-      font-size: 24px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--green);
-      margin-bottom: 8px;
+      font-weight: 700; font-size: 24px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
     }
-    .login-card h1 {
-      font-size: 18px;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-    .login-card p {
-      color: var(--text-soft);
-      font-size: 13px;
-      margin-bottom: 24px;
-    }
+    .login-card h1 { font-size: 18px; margin-bottom: 8px; font-weight: 600; }
+    .login-card p { color: var(--text-soft); font-size: 13px; margin-bottom: 24px; }
     .login-card input {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.15s;
-      text-align: center;
-      letter-spacing: 0.08em;
+      width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 15px; outline: none;
+      transition: border-color 0.15s; text-align: center; letter-spacing: 0.08em;
     }
     .login-card input:focus { border-color: var(--green); }
-    .login-card .err {
-      color: var(--danger);
-      font-size: 13px;
-      margin-top: 10px;
-      min-height: 18px;
-    }
+    .login-card .err { color: var(--danger); font-size: 13px; margin-top: 10px; min-height: 18px; }
     .login-card button {
-      width: 100%;
-      margin-top: 14px;
-      padding: 12px;
-      background: var(--green);
-      color: white;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 15px;
-      letter-spacing: 0.04em;
+      width: 100%; margin-top: 14px; padding: 12px;
+      background: var(--green); color: white; border-radius: 10px;
+      font-weight: 600; font-size: 15px; letter-spacing: 0.04em;
       transition: background 0.15s, transform 0.1s;
     }
     .login-card button:hover { background: var(--green-dark); }
     .login-card button:active { transform: translateY(1px); }
 
-    /* ==================== EDITOR LAYOUT ==================== */
+    /* ==================== EDITOR ==================== */
     .editor { min-height: 100vh; display: flex; flex-direction: column; }
 
     .topbar {
-      background: white;
-      border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      background: white; border-bottom: 1px solid var(--border);
+      padding: 10px 24px; display: flex; align-items: center; gap: 12px;
+      position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
     }
     .topbar .brand {
-      font-family: "Oswald", system-ui, sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--green);
-      font-size: 16px;
+      font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--green); font-size: 16px;
     }
-    .topbar .crumb {
-      color: var(--muted);
-      font-size: 13px;
-    }
+    .topbar .crumb { color: var(--muted); font-size: 13px; }
     .topbar .spacer { flex: 1; }
     .topbar .saved {
-      font-size: 12px;
-      color: var(--green);
-      opacity: 0;
+      font-size: 12px; color: var(--green); opacity: 0;
       transition: opacity 0.3s;
     }
     .topbar .saved.show { opacity: 1; }
 
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 14px;
-      background: var(--bg-soft);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; background: var(--bg-soft); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 13px; font-weight: 500;
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
     .btn:hover { background: white; border-color: var(--green); color: var(--green-dark); }
-    .btn.primary {
-      background: var(--green);
-      color: white;
-      border-color: var(--green);
-    }
+    .btn.primary { background: var(--green); color: white; border-color: var(--green); }
     .btn.primary:hover { background: var(--green-dark); border-color: var(--green-dark); color: white; }
     .btn.danger { color: var(--danger); border-color: rgba(214, 40, 40, 0.3); }
     .btn.danger:hover { background: rgba(214, 40, 40, 0.06); color: var(--danger); border-color: var(--danger); }
     .btn.ghost { background: transparent; border-color: transparent; }
     .btn.ghost:hover { background: var(--bg-soft); border-color: transparent; }
+    .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
     .btn svg { width: 14px; height: 14px; }
 
     .layout {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      max-width: 1300px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 24px;
-      gap: 24px;
+      flex: 1; display: grid; grid-template-columns: 240px 1fr;
+      max-width: 1300px; width: 100%; margin: 0 auto; padding: 24px; gap: 24px;
     }
-
     .sidenav {
-      background: white;
-      border-radius: 12px;
-      padding: 12px;
-      height: fit-content;
-      position: sticky;
-      top: 80px;
+      background: white; border-radius: 12px; padding: 12px;
+      height: fit-content; position: sticky; top: 76px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.04);
     }
     .sidenav-title {
-      font-size: 11px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-      padding: 8px 12px;
-      font-weight: 600;
+      font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted); padding: 8px 12px; font-weight: 600;
     }
     .sidenav button {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      color: var(--text);
-      margin-bottom: 2px;
+      display: block; width: 100%; text-align: left;
+      padding: 10px 12px; border-radius: 8px; font-size: 14px;
+      color: var(--text); margin-bottom: 2px;
     }
     .sidenav button:hover { background: var(--bg-soft); }
-    .sidenav button.active {
-      background: var(--green-soft);
-      color: var(--green-darker);
-      font-weight: 600;
-    }
+    .sidenav button.active { background: var(--green-soft); color: var(--green-darker); font-weight: 600; }
 
     .panel {
-      background: white;
-      border-radius: 12px;
-      padding: 28px 32px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-      min-height: 400px;
+      background: white; border-radius: 12px; padding: 28px 32px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04); min-height: 400px;
     }
     .panel h2 {
-      font-family: "Oswald", system-ui, sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      letter-spacing: -0.01em;
+      font-size: 22px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.01em;
     }
-    .panel .panel-sub {
-      color: var(--text-soft);
-      font-size: 13px;
-      margin-bottom: 24px;
-    }
+    .panel .panel-sub { color: var(--text-soft); font-size: 13px; margin-bottom: 24px; }
 
-    .field { margin-bottom: 18px; }
+    .field { margin-bottom: 16px; }
     .field-label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-soft);
-      margin-bottom: 6px;
+      display: block; font-size: 12px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-soft); margin-bottom: 6px;
     }
-    .field-hint {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 4px;
+    .field-hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .field input, .field textarea {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: 8px; outline: none; transition: border-color 0.15s;
+      background: white; color: var(--text);
     }
-    .field input,
-    .field textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      outline: none;
-      transition: border-color 0.15s;
-      background: white;
-      color: var(--text);
-    }
-    .field textarea { resize: vertical; min-height: 80px; }
-    .field input:focus,
-    .field textarea:focus { border-color: var(--green); }
+    .field textarea { resize: vertical; min-height: 70px; }
+    .field input:focus, .field textarea:focus { border-color: var(--green); }
 
-    /* Title row with three fields */
     .title-row {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr 1.2fr;
-      gap: 8px;
-      align-items: stretch;
+      display: grid; grid-template-columns: 1.5fr 1fr 1.2fr;
+      gap: 8px; align-items: stretch;
     }
     .title-row .accent-field input {
-      background: var(--green-soft);
-      color: var(--green-darker);
-      font-weight: 600;
-      border-color: rgba(30,160,62,0.25);
+      background: var(--green-soft); color: var(--green-darker);
+      font-weight: 600; border-color: rgba(30,160,62,0.25);
     }
 
-    /* Section header */
     .section-head {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      display: flex; align-items: center; gap: 12px;
       margin: 28px 0 14px;
     }
     .section-head h3 {
-      font-family: "Oswald", system-ui, sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text);
+      font-size: 14px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text);
     }
-    .section-head .line {
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
+    .section-head .line { flex: 1; height: 1px; background: var(--border); }
 
-    /* Notes */
-    .note {
-      background: var(--bg-soft);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 12px;
-      position: relative;
+    /* Sortable list items */
+    .row-list { display: flex; flex-direction: column; gap: 10px; }
+    .row {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 14px 14px 38px; position: relative;
+      transition: box-shadow 0.15s, background 0.15s;
     }
-    .note-head {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
+    .row:hover { background: white; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+    .row .grip {
+      position: absolute; left: 8px; top: 0; bottom: 0;
+      width: 24px; display: flex; align-items: center; justify-content: center;
+      color: var(--muted); cursor: grab; user-select: none;
     }
-    .note-head .idx {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--green);
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .row .grip:hover { color: var(--green); }
+    .row .grip svg { width: 14px; height: 14px; }
+    .row:active .grip { cursor: grabbing; }
+
+    .row-head {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
     }
-    .note-head .spacer { flex: 1; }
-    .note .field { margin-bottom: 10px; }
-    .note .field:last-child { margin-bottom: 0; }
-    .add-note {
-      width: 100%;
-      padding: 12px;
-      border: 1.5px dashed var(--border);
-      border-radius: 10px;
-      color: var(--text-soft);
-      font-size: 14px;
-      font-weight: 500;
+    .row-head .idx {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--green); color: white; font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .row-head .title-preview {
+      font-size: 13px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      flex: 1; min-width: 0;
+    }
+    .row .field { margin-bottom: 8px; }
+    .row .field:last-child { margin-bottom: 0; }
+
+    /* SortableJS visual states */
+    .sortable-ghost { opacity: 0.35; }
+    .sortable-chosen { box-shadow: 0 8px 24px rgba(30,160,62,0.18); transform: scale(1.01); }
+    .sortable-drag { opacity: 0.95; }
+
+    .add-row {
+      width: 100%; padding: 11px;
+      border: 1.5px dashed var(--border); border-radius: 10px;
+      color: var(--text-soft); font-size: 14px; font-weight: 500;
       transition: border-color 0.15s, background 0.15s, color 0.15s;
       background: transparent;
     }
-    .add-note:hover {
-      border-color: var(--green);
-      background: var(--green-soft);
-      color: var(--green-dark);
-    }
+    .add-row:hover { border-color: var(--green); background: var(--green-soft); color: var(--green-dark); }
 
     .programas-warn {
-      background: linear-gradient(135deg, #fff8ec 0%, #fff2d6 100%);
-      border: 1px solid #f0d486;
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin-bottom: 24px;
-      font-size: 13px;
-      color: #7a4a14;
+      background: linear-gradient(135deg, var(--amber-bg) 0%, #fff2d6 100%);
+      border: 1px solid var(--amber-bd); border-radius: 10px;
+      padding: 14px 16px; margin-bottom: 24px; font-size: 13px; color: var(--amber-tx);
     }
     .programas-warn strong { color: #5a3408; }
+
+    .ticker-row { display: grid; grid-template-columns: 90px 1fr; gap: 8px; align-items: end; }
+    .footer-row, .card-row { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; align-items: end; }
+
+    /* Publish dialog */
+    .pub-status {
+      margin-left: 8px; font-size: 12px; padding: 4px 10px;
+      border-radius: 999px; background: var(--bg-soft); color: var(--text-soft);
+    }
+    .pub-status.ok { background: var(--green-soft); color: var(--green-darker); }
+    .pub-status.err { background: rgba(214,40,40,0.08); color: var(--danger); }
+    .pub-status .dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      background: currentColor; margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translate(-50%, 20px);
+      background: var(--text); color: white; padding: 12px 20px;
+      border-radius: 999px; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      opacity: 0; transition: transform 0.25s, opacity 0.25s; z-index: 50;
+      pointer-events: none;
+    }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+    .toast.ok { background: var(--green); }
+    .toast.err { background: var(--danger); }
 
     .hidden { display: none !important; }
 
     @media (max-width: 720px) {
-      .layout { grid-template-columns: 1fr; padding: 16px; }
+      .layout { grid-template-columns: 1fr; padding: 14px; }
       .sidenav { position: static; }
       .sidenav button { display: inline-block; width: auto; margin-right: 6px; }
       .title-row { grid-template-columns: 1fr; }
-      .panel { padding: 20px; }
-      .topbar { padding: 10px 14px; flex-wrap: wrap; gap: 10px; }
+      .panel { padding: 18px; }
+      .topbar { padding: 10px 14px; flex-wrap: wrap; gap: 8px; }
       .topbar .crumb { display: none; }
+      .ticker-row, .footer-row, .card-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -390,21 +286,26 @@
 
     <div class="topbar">
       <span class="brand">Elet · Admin</span>
-      <span class="crumb" id="crumb">Historia</span>
-      <span class="saved" id="saved">✓ Guardado</span>
+      <span class="crumb" id="crumb">Inicio</span>
+      <span class="saved" id="saved">✓ Borrador guardado</span>
+      <span class="pub-status" id="pub-status"><span class="dot"></span><span id="pub-status-text">Sin cambios</span></span>
       <span class="spacer"></span>
-      <button class="btn ghost" id="reload" title="Recargar últimos cambios publicados (descartando borradores locales)">
+      <button class="btn ghost" id="reload" title="Descartar borrador local y recargar lo último publicado">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>
-        Descartar borrador
+        Descartar
       </button>
       <label class="btn" for="import-file">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
         Cargar JSON
       </label>
       <input type="file" id="import-file" accept="application/json" style="display:none"/>
-      <button class="btn primary" id="export">
+      <button class="btn" id="export">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        Descargar publicación
+        Descargar
+      </button>
+      <button class="btn primary" id="publish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 2l-4 4M12 2l4 4M20 16v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"/></svg>
+        Publicar al sitio
       </button>
       <a class="btn" href="/" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
@@ -415,20 +316,23 @@
 
     <div class="layout">
       <aside class="sidenav">
-        <div class="sidenav-title">Solapas</div>
+        <div class="sidenav-title">Editar solapa</div>
+        <button data-tab="inicio">Inicio</button>
         <button data-tab="historia">Historia</button>
         <button data-tab="programas">Programas</button>
         <button data-tab="agenda">Agenda MJA</button>
         <button data-tab="noticias">Noticias del Cielo</button>
         <button data-tab="jesus">¿Querés conocer a Jesús?</button>
+        <button data-tab="footer">Pie de página</button>
       </aside>
 
-      <main class="panel" id="panel">
-        <!-- Filled dynamically by JS -->
-      </main>
+      <main class="panel" id="panel"></main>
     </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" defer></script>
   <script>
   (function () {
     'use strict';
@@ -436,29 +340,34 @@
     /* ==================== CONFIG ==================== */
     const PASS_HASH = '5312483a9608c7f943cde4dfd7b99ce2f89f39f5da5a5178faf880b2fea02dfe';
     const STORAGE_KEY = 'elet_admin_content_draft';
+    const PUBLISHED_KEY = 'elet_admin_last_published_hash';
     const AUTH_KEY = 'elet_admin_authed';
 
     const TABS = [
-      { id: 'historia',  label: 'Historia' },
-      { id: 'programas', label: 'Programas' },
-      { id: 'agenda',    label: 'Agenda MJA' },
-      { id: 'noticias',  label: 'Noticias del Cielo' },
-      { id: 'jesus',     label: '¿Querés conocer a Jesús?' },
+      { id: 'inicio',    label: 'Inicio',                   type: 'home'   },
+      { id: 'historia',  label: 'Historia',                 type: 'inner'  },
+      { id: 'programas', label: 'Programas',                type: 'inner'  },
+      { id: 'agenda',    label: 'Agenda MJA',               type: 'inner'  },
+      { id: 'noticias',  label: 'Noticias del Cielo',       type: 'inner'  },
+      { id: 'jesus',     label: '¿Querés conocer a Jesús?', type: 'inner'  },
+      { id: 'footer',    label: 'Pie de página',            type: 'footer' },
     ];
 
     /* ==================== STATE ==================== */
     let content = null;
-    let activeTab = 'historia';
+    let activeTab = 'inicio';
     let saveTimer = null;
+    let pwdHashCache = null;
 
     /* ==================== UTILS ==================== */
     async function sha256(str) {
       const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
       return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
     }
-
-    function $(sel, root = document) { return root.querySelector(sel); }
-    function $$(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
+    function $(s, r=document) { return r.querySelector(s); }
+    function $$(s, r=document) { return Array.from(r.querySelectorAll(s)); }
+    function escAttr(s) { return String(s == null ? '' : s).replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+    function escText(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
     function flashSaved() {
       const el = $('#saved');
@@ -467,42 +376,83 @@
       saveTimer = setTimeout(() => el.classList.remove('show'), 900);
     }
 
-    function persist() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
-      flashSaved();
+    let toastTimer = null;
+    function toast(msg, kind = '') {
+      const t = $('#toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (kind ? ' ' + kind : '');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    function defaultTabContent(id) {
+    /* ==================== STORAGE / STATE ==================== */
+    function defaultsHome() {
       return {
-        eyebrow: '',
-        title: { prefix: '', accent: '', suffix: '' },
-        lead: '',
-        notes: [],
+        hero: { title: { prefix: '', accent: '', suffix: '' }, tagline: '', cta: '', live_label: '', right_hint: '', right_accent: '', right_sub: '' },
+        ticker: { badge: 'Ahora', intro: '', more: '', items: [] },
+        cards: [],
       };
+    }
+    function defaultsFooter() { return { items: [], socials_label: '' }; }
+    function defaultsInner() {
+      return { eyebrow: '', title: { prefix: '', accent: '', suffix: '' }, lead: '', notes: [] };
     }
 
     async function loadContent() {
-      // Prefer local draft if it exists
       const draft = localStorage.getItem(STORAGE_KEY);
       if (draft) {
         try { content = JSON.parse(draft); } catch (e) { content = null; }
       }
       if (!content) {
         try {
-          const res = await fetch('content.json?v=' + Date.now());
+          const res = await fetch('content.json?v=' + Date.now(), { cache: 'no-store' });
           content = res.ok ? await res.json() : {};
         } catch (e) { content = {}; }
       }
-      // Ensure every tab has a shape
-      TABS.forEach(t => { if (!content[t.id]) content[t.id] = defaultTabContent(t.id); });
+      // Ensure shape
+      if (!content.home) content.home = defaultsHome();
+      else {
+        const d = defaultsHome();
+        content.home.hero = Object.assign(d.hero, content.home.hero || {});
+        content.home.ticker = Object.assign(d.ticker, content.home.ticker || {});
+        content.home.cards = content.home.cards || d.cards;
+      }
+      if (!content.footer) content.footer = defaultsFooter();
+      ['historia','programas','agenda','noticias','jesus'].forEach(k => {
+        if (!content[k]) content[k] = defaultsInner();
+      });
+      updatePublishStatus();
+    }
+
+    async function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
+      flashSaved();
+      updatePublishStatus();
+    }
+
+    async function currentHash() {
+      const json = JSON.stringify(content);
+      return sha256(json);
+    }
+    async function updatePublishStatus() {
+      const h = await currentHash();
+      const lastPub = localStorage.getItem(PUBLISHED_KEY);
+      const text = $('#pub-status-text');
+      const status = $('#pub-status');
+      if (lastPub && lastPub === h) {
+        status.className = 'pub-status ok';
+        text.textContent = 'Publicado';
+      } else {
+        status.className = 'pub-status';
+        text.textContent = lastPub ? 'Cambios sin publicar' : 'Sin publicar todavía';
+      }
     }
 
     /* ==================== AUTH ==================== */
     async function attemptLogin(pwd) {
-      const h = await sha256(pwd);
-      return h === PASS_HASH;
+      pwdHashCache = await sha256(pwd);
+      return pwdHashCache === PASS_HASH;
     }
-
     function setAuthed(v) {
       if (v) sessionStorage.setItem(AUTH_KEY, '1');
       else sessionStorage.removeItem(AUTH_KEY);
@@ -511,10 +461,9 @@
 
     $('#login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const pwd = $('#pwd').value;
       const err = $('#err');
       err.textContent = '';
-      const ok = await attemptLogin(pwd);
+      const ok = await attemptLogin($('#pwd').value);
       if (ok) {
         setAuthed(true);
         await enterEditor();
@@ -523,11 +472,7 @@
         $('#pwd').select();
       }
     });
-
-    $('#logout').addEventListener('click', () => {
-      setAuthed(false);
-      location.reload();
-    });
+    $('#logout').addEventListener('click', () => { setAuthed(false); location.reload(); });
 
     /* ==================== EDITOR ==================== */
     async function enterEditor() {
@@ -537,7 +482,6 @@
       renderTab(activeTab);
       wireSidenav();
     }
-
     function wireSidenav() {
       $$('.sidenav button').forEach(b => {
         b.addEventListener('click', () => {
@@ -547,134 +491,329 @@
       });
     }
 
-    function escapeAttr(s) {
-      return String(s == null ? '' : s).replace(/"/g, '&quot;').replace(/</g, '&lt;');
-    }
-    function escapeText(s) {
-      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
     function renderTab(id) {
       $$('.sidenav button').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
       const meta = TABS.find(t => t.id === id);
       $('#crumb').textContent = meta.label;
-      const data = content[id];
-      const t = data.title || { prefix: '', accent: '', suffix: '' };
+      if (meta.type === 'home') renderHome();
+      else if (meta.type === 'footer') renderFooter();
+      else renderInner(id);
+    }
+
+    /* ---------- INNER PAGES ---------- */
+    function renderInner(id) {
+      const data = content[id] || defaultsInner();
+      const t = data.title || { prefix:'', accent:'', suffix:'' };
+      const meta = TABS.find(x => x.id === id);
 
       const programasWarn = id === 'programas'
-        ? `<div class="programas-warn">
-             <strong>Sobre la solapa Programas:</strong> la grilla horaria (días de la semana, horarios y bandas de color) tiene una estructura técnica que no se edita acá. Editás el encabezado y podés sumar notas sueltas. Para cambios en la grilla, contactá al desarrollador.
-           </div>` : '';
+        ? `<div class="programas-warn"><strong>Sobre la solapa Programas:</strong> la grilla horaria tiene una estructura técnica que no se edita acá. Editás el encabezado y podés sumar notas sueltas. Para cambios en la grilla, contactá al desarrollador.</div>`
+        : '';
 
-      const html = `
-        <h2>${escapeText(meta.label)}</h2>
-        <p class="panel-sub">Editá los textos de esta solapa. Los cambios se guardan automáticamente en este dispositivo.</p>
+      $('#panel').innerHTML = `
+        <h2>${escText(meta.label)}</h2>
+        <p class="panel-sub">Editás los textos de esta solapa. Se guardan en este dispositivo y se publican al sitio cuando apretás "Publicar al sitio".</p>
         ${programasWarn}
 
         <div class="field">
-          <label class="field-label">Antetítulo (encima del título)</label>
-          <input type="text" data-field="eyebrow" value="${escapeAttr(data.eyebrow)}" placeholder="Ej: Nuestra esencia"/>
-          <div class="field-hint">Texto corto en mayúscula que aparece arriba del título.</div>
+          <label class="field-label">Antetítulo</label>
+          <input type="text" data-field="eyebrow" value="${escAttr(data.eyebrow)}" placeholder="Ej: Nuestra esencia"/>
         </div>
 
         <div class="field">
-          <label class="field-label">Título (con palabra resaltada en verde)</label>
+          <label class="field-label">Título (palabra del medio se muestra en verde)</label>
           <div class="title-row">
-            <div><input type="text" data-field="title.prefix" value="${escapeAttr(t.prefix)}" placeholder="Ej: Una "/></div>
-            <div class="accent-field"><input type="text" data-field="title.accent" value="${escapeAttr(t.accent)}" placeholder="Ej: historia"/></div>
-            <div><input type="text" data-field="title.suffix" value="${escapeAttr(t.suffix)}" placeholder="Ej: que sigue creciendo"/></div>
+            <div><input type="text" data-field="title.prefix" value="${escAttr(t.prefix)}" placeholder="Ej: Una "/></div>
+            <div class="accent-field"><input type="text" data-field="title.accent" value="${escAttr(t.accent)}" placeholder="Ej: historia"/></div>
+            <div><input type="text" data-field="title.suffix" value="${escAttr(t.suffix)}" placeholder="Ej: que sigue creciendo"/></div>
           </div>
-          <div class="field-hint">La palabra del medio se muestra en verde claro en el sitio.</div>
         </div>
 
         <div class="field">
           <label class="field-label">Bajada</label>
-          <textarea data-field="lead" rows="2" placeholder="Una frase corta debajo del título.">${escapeText(data.lead)}</textarea>
+          <textarea data-field="lead" rows="2" placeholder="Frase corta debajo del título.">${escText(data.lead)}</textarea>
         </div>
 
         <div class="section-head">
-          <h3>Secciones / Notas</h3>
+          <h3>Notas / secciones</h3>
           <span class="line"></span>
-          <span class="field-hint">${data.notes.length} ${data.notes.length === 1 ? 'nota' : 'notas'}</span>
+          <span class="field-hint" id="note-count"></span>
         </div>
 
-        <div id="notes-list"></div>
-
-        <button class="add-note" id="add-note">+ Agregar nota</button>
+        <div class="row-list" id="notes-list"></div>
+        <button class="add-row" id="add-note" style="margin-top:10px">+ Agregar nota</button>
       `;
-      $('#panel').innerHTML = html;
-
+      wireFields(content[id]);
       renderNotes();
-      wireFields();
     }
 
     function renderNotes() {
       const list = $('#notes-list');
       const data = content[activeTab];
+      const cnt = $('#note-count');
+      if (cnt) cnt.textContent = data.notes.length + (data.notes.length === 1 ? ' nota' : ' notas');
+
       if (!data.notes.length) {
-        list.innerHTML = '<p class="field-hint" style="text-align:center; padding: 16px 0;">Todavía no hay notas en esta solapa.</p>';
-        return;
-      }
-      list.innerHTML = data.notes.map((n, i) => `
-        <div class="note" data-note-idx="${i}">
-          <div class="note-head">
-            <div class="idx">${i + 1}</div>
-            <strong style="font-size: 13px;">${escapeText(n.title) || 'Nota sin título'}</strong>
-            <div class="spacer"></div>
-            ${i > 0 ? `<button class="btn ghost" data-act="up" title="Subir">↑</button>` : ''}
-            ${i < data.notes.length - 1 ? `<button class="btn ghost" data-act="down" title="Bajar">↓</button>` : ''}
-            <button class="btn danger" data-act="del" title="Eliminar nota">Eliminar</button>
-          </div>
+        list.innerHTML = '<p class="field-hint" style="text-align:center; padding: 14px 0;">Todavía no hay notas en esta solapa.</p>';
+      } else {
+        list.innerHTML = data.notes.map((n, i) => rowTpl(i, n.title || 'Nota sin título', `
           <div class="field">
             <label class="field-label">Título de la nota</label>
-            <input type="text" data-note-field="title" value="${escapeAttr(n.title)}" placeholder="Ej: Próximamente"/>
+            <input type="text" data-row-field="title" value="${escAttr(n.title)}" placeholder="Ej: Próximamente"/>
           </div>
           <div class="field">
             <label class="field-label">Texto</label>
-            <textarea data-note-field="body" rows="4" placeholder="El contenido de la nota...">${escapeText(n.body)}</textarea>
+            <textarea data-row-field="body" rows="3" placeholder="Contenido de la nota...">${escText(n.body)}</textarea>
+          </div>
+        `)).join('');
+        wireRows(data.notes, () => renderNotes());
+        initSortable(list, data.notes, () => { persist(); renderNotes(); });
+      }
+      $('#add-note').onclick = () => {
+        data.notes.push({ title: 'Nueva nota', body: '' });
+        persist();
+        renderNotes();
+      };
+    }
+
+    /* ---------- HOME ---------- */
+    function renderHome() {
+      const h = content.home.hero;
+      $('#panel').innerHTML = `
+        <h2>Inicio</h2>
+        <p class="panel-sub">Estos textos aparecen en la página principal: hero, ticker de noticias y las 4 tarjetas.</p>
+
+        <div class="section-head"><h3>Hero — encabezado principal</h3><span class="line"></span></div>
+
+        <div class="field">
+          <label class="field-label">Título principal</label>
+          <div class="title-row">
+            <div><input type="text" data-field="home.hero.title.prefix" value="${escAttr(h.title.prefix)}" placeholder="Ej: Radio "/></div>
+            <div class="accent-field"><input type="text" data-field="home.hero.title.accent" value="${escAttr(h.title.accent)}" placeholder="Ej: que transforma"/></div>
+            <div><input type="text" data-field="home.hero.title.suffix" value="${escAttr(h.title.suffix)}" placeholder="Ej:  vidas"/></div>
           </div>
         </div>
-      `).join('');
 
-      // Wire note inputs
-      $$('#notes-list .note').forEach(noteEl => {
-        const idx = parseInt(noteEl.dataset.noteIdx, 10);
-        $$('[data-note-field]', noteEl).forEach(inp => {
-          const field = inp.dataset.noteField;
+        <div class="field">
+          <label class="field-label">Bajada del hero</label>
+          <textarea data-field="home.hero.tagline" rows="2">${escText(h.tagline)}</textarea>
+          <div class="field-hint">Usá Enter para forzar un salto de línea.</div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Texto del botón de play</label>
+          <input type="text" data-field="home.hero.cta" value="${escAttr(h.cta)}"/>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Cartelito sobre la foto ("En el aire")</label>
+          <input type="text" data-field="home.hero.live_label" value="${escAttr(h.live_label)}"/>
+        </div>
+
+        <div class="title-row">
+          <div class="field">
+            <label class="field-label">Columna derecha — antetítulo</label>
+            <input type="text" data-field="home.hero.right_hint" value="${escAttr(h.right_hint)}"/>
+          </div>
+          <div class="field accent-field">
+            <label class="field-label">Columna derecha — palabra verde</label>
+            <input type="text" data-field="home.hero.right_accent" value="${escAttr(h.right_accent)}"/>
+          </div>
+          <div class="field">
+            <label class="field-label">Columna derecha — descripción</label>
+            <textarea data-field="home.hero.right_sub" rows="2">${escText(h.right_sub)}</textarea>
+          </div>
+        </div>
+
+        <div class="section-head"><h3>Ticker — barra de noticias</h3><span class="line"></span></div>
+        <div class="title-row">
+          <div class="field">
+            <label class="field-label">Etiqueta verde</label>
+            <input type="text" data-field="home.ticker.badge" value="${escAttr(content.home.ticker.badge)}"/>
+          </div>
+          <div class="field" style="grid-column: span 2;">
+            <label class="field-label">Texto introductorio</label>
+            <input type="text" data-field="home.ticker.intro" value="${escAttr(content.home.ticker.intro)}"/>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Link "Ver más"</label>
+          <input type="text" data-field="home.ticker.more" value="${escAttr(content.home.ticker.more)}"/>
+        </div>
+
+        <div class="section-head"><h3>Noticias del ticker</h3><span class="line"></span><span class="field-hint" id="tk-count"></span></div>
+        <div class="row-list" id="ticker-list"></div>
+        <button class="add-row" id="add-ticker" style="margin-top:10px">+ Agregar noticia al ticker</button>
+
+        <div class="section-head"><h3>Tarjetas (4 atajos)</h3><span class="line"></span></div>
+        <div class="row-list" id="cards-list"></div>
+      `;
+      wireFields(null);
+      renderTicker();
+      renderCards();
+    }
+
+    function renderTicker() {
+      const list = $('#ticker-list');
+      const items = content.home.ticker.items || [];
+      const cnt = $('#tk-count');
+      if (cnt) cnt.textContent = items.length + (items.length === 1 ? ' noticia' : ' noticias');
+
+      if (!items.length) {
+        list.innerHTML = '<p class="field-hint" style="text-align:center; padding: 14px 0;">No hay noticias en el ticker.</p>';
+      } else {
+        list.innerHTML = items.map((it, i) => rowTpl(i, (it.time || '') + ' ' + (it.text || ''), `
+          <div class="ticker-row">
+            <div class="field" style="margin:0;">
+              <label class="field-label">Hora</label>
+              <input type="text" data-row-field="time" value="${escAttr(it.time)}" placeholder="20:00"/>
+            </div>
+            <div class="field" style="margin:0;">
+              <label class="field-label">Texto</label>
+              <input type="text" data-row-field="text" value="${escAttr(it.text)}" placeholder="Descripción de la noticia"/>
+            </div>
+          </div>
+        `)).join('');
+        wireRows(items, () => renderTicker());
+        initSortable(list, items, () => { persist(); renderTicker(); });
+      }
+      $('#add-ticker').onclick = () => {
+        items.push({ time: '00:00', text: 'Nueva noticia' });
+        persist();
+        renderTicker();
+      };
+    }
+
+    function renderCards() {
+      const list = $('#cards-list');
+      const cards = content.home.cards || [];
+      if (!cards.length) {
+        list.innerHTML = '<p class="field-hint">No hay tarjetas configuradas.</p>';
+        return;
+      }
+      list.innerHTML = cards.map((c, i) => rowTpl(i, (c.label || '') + ' · ' + (c.title || ''), `
+        <div class="card-row">
+          <div class="field" style="margin:0;">
+            <label class="field-label">Etiqueta (chiquita arriba)</label>
+            <input type="text" data-row-field="label" value="${escAttr(c.label)}"/>
+          </div>
+          <div class="field" style="margin:0;">
+            <label class="field-label">Título</label>
+            <input type="text" data-row-field="title" value="${escAttr(c.title)}"/>
+          </div>
+        </div>
+        <div class="field" style="margin-top:8px; margin-bottom:0;">
+          <label class="field-label">Texto del botón</label>
+          <input type="text" data-row-field="button" value="${escAttr(c.button)}"/>
+        </div>
+      `, /*draggable*/ false)).join('');
+      wireRows(cards, () => renderCards());
+      // No sortable on cards — they're a fixed set of 4.
+    }
+
+    /* ---------- FOOTER ---------- */
+    function renderFooter() {
+      const items = content.footer.items || [];
+      $('#panel').innerHTML = `
+        <h2>Pie de página</h2>
+        <p class="panel-sub">Los 4 bloques que aparecen en la barra verde del pie de página y la etiqueta de "Seguinos".</p>
+
+        <div class="field">
+          <label class="field-label">Etiqueta de redes sociales</label>
+          <input type="text" data-field="footer.socials_label" value="${escAttr(content.footer.socials_label)}" placeholder="Ej: Seguinos"/>
+        </div>
+
+        <div class="section-head"><h3>Bloques del pie</h3><span class="line"></span></div>
+        <div class="row-list" id="footer-list"></div>
+      `;
+      wireFields(null);
+      const list = $('#footer-list');
+      list.innerHTML = items.map((it, i) => rowTpl(i, (it.title || '') + ' — ' + (it.sub || ''), `
+        <div class="footer-row">
+          <div class="field" style="margin:0;">
+            <label class="field-label">Título</label>
+            <input type="text" data-row-field="title" value="${escAttr(it.title)}"/>
+          </div>
+          <div class="field" style="margin:0;">
+            <label class="field-label">Subtítulo</label>
+            <input type="text" data-row-field="sub" value="${escAttr(it.sub)}"/>
+          </div>
+        </div>
+      `, /*draggable*/ false)).join('');
+      wireRows(items, () => renderFooter());
+    }
+
+    /* ---------- ROW BUILDERS ---------- */
+    function rowTpl(idx, titlePreview, innerHTML, draggable = true) {
+      return `
+        <div class="row" data-idx="${idx}">
+          ${draggable ? `<div class="grip" title="Arrastrar para reordenar">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+          </div>` : ''}
+          <div class="row-head">
+            <div class="idx">${idx + 1}</div>
+            <div class="title-preview">${escText(titlePreview)}</div>
+            ${draggable ? `<button class="btn danger" data-act="del">Eliminar</button>` : ''}
+          </div>
+          ${innerHTML}
+        </div>
+      `;
+    }
+
+    function wireRows(arr, rerender) {
+      $$('#panel .row').forEach(rowEl => {
+        const idx = parseInt(rowEl.dataset.idx, 10);
+        $$('[data-row-field]', rowEl).forEach(inp => {
+          const field = inp.dataset.rowField;
           inp.addEventListener('input', () => {
-            content[activeTab].notes[idx][field] = inp.value;
+            arr[idx][field] = inp.value;
             persist();
-            // Refresh title badge in real time
-            if (field === 'title') {
-              const strong = noteEl.querySelector('.note-head strong');
-              if (strong) strong.textContent = inp.value || 'Nota sin título';
-            }
-          });
-        });
-        $$('[data-act]', noteEl).forEach(btn => {
-          btn.addEventListener('click', () => {
-            const act = btn.dataset.act;
-            const notes = content[activeTab].notes;
-            if (act === 'del') {
-              if (confirm('¿Eliminar esta nota?')) {
-                notes.splice(idx, 1);
-                persist();
-                renderTab(activeTab);
+            // Update title preview live without re-rendering whole list
+            const tp = rowEl.querySelector('.title-preview');
+            if (tp) {
+              if ('text' in arr[idx] && 'time' in arr[idx]) {
+                tp.textContent = (arr[idx].time || '') + ' ' + (arr[idx].text || '');
+              } else if ('label' in arr[idx]) {
+                tp.textContent = (arr[idx].label || '') + ' · ' + (arr[idx].title || '');
+              } else if ('sub' in arr[idx]) {
+                tp.textContent = (arr[idx].title || '') + ' — ' + (arr[idx].sub || '');
+              } else if ('title' in arr[idx]) {
+                tp.textContent = arr[idx].title || 'Nota sin título';
               }
-            } else if (act === 'up' && idx > 0) {
-              [notes[idx - 1], notes[idx]] = [notes[idx], notes[idx - 1]];
-              persist();
-              renderTab(activeTab);
-            } else if (act === 'down' && idx < notes.length - 1) {
-              [notes[idx + 1], notes[idx]] = [notes[idx], notes[idx + 1]];
-              persist();
-              renderTab(activeTab);
             }
           });
         });
+        const del = rowEl.querySelector('[data-act="del"]');
+        if (del) {
+          del.addEventListener('click', () => {
+            if (confirm('¿Eliminar este elemento?')) {
+              arr.splice(idx, 1);
+              persist();
+              rerender();
+            }
+          });
+        }
       });
     }
 
+    function initSortable(listEl, arr, onChange) {
+      if (typeof Sortable === 'undefined') return; // CDN not loaded yet
+      new Sortable(listEl, {
+        handle: '.grip',
+        animation: 180,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        onEnd: (evt) => {
+          if (evt.oldIndex === evt.newIndex) return;
+          const [m] = arr.splice(evt.oldIndex, 1);
+          arr.splice(evt.newIndex, 0, m);
+          onChange();
+        }
+      });
+    }
+
+    /* ---------- TOP-LEVEL FIELD WIRING ---------- */
     function setByPath(obj, path, value) {
       const parts = path.split('.');
       let cur = obj;
@@ -684,61 +823,89 @@
       }
       cur[parts[parts.length - 1]] = value;
     }
-
-    function wireFields() {
-      $$('[data-field]', $('#panel')).forEach(inp => {
+    function wireFields(scope) {
+      // Paths starting with "home." or "footer." resolve at content root.
+      // Other paths resolve in `scope` (inner-tab content) if scope is provided.
+      $$('#panel [data-field]').forEach(inp => {
         inp.addEventListener('input', () => {
-          setByPath(content[activeTab], inp.dataset.field, inp.value);
+          const path = inp.dataset.field;
+          const isRoot = path.startsWith('home.') || path.startsWith('footer.');
+          const target = (isRoot || !scope) ? content : scope;
+          setByPath(target, path, inp.value);
           persist();
         });
       });
-      $('#add-note')?.addEventListener('click', () => {
-        content[activeTab].notes.push({ title: 'Nueva nota', body: '' });
-        persist();
-        renderTab(activeTab);
-        // Scroll to bottom
-        $('.panel').scrollTo?.({ top: $('.panel').scrollHeight, behavior: 'smooth' });
-      });
     }
 
-    /* ==================== EXPORT / IMPORT ==================== */
+    /* ==================== EXPORT / IMPORT / PUBLISH ==================== */
     $('#export').addEventListener('click', () => {
       const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = 'content.json';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      a.href = url; a.download = 'content.json';
+      document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
     });
-
     $('#import-file').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
       try {
         const text = await file.text();
         const parsed = JSON.parse(text);
-        if (typeof parsed !== 'object' || parsed === null) throw new Error('invalid');
+        if (typeof parsed !== 'object' || parsed === null) throw new Error('invalido');
         content = parsed;
-        TABS.forEach(t => { if (!content[t.id]) content[t.id] = defaultTabContent(t.id); });
+        if (!content.home) content.home = defaultsHome();
+        if (!content.footer) content.footer = defaultsFooter();
+        ['historia','programas','agenda','noticias','jesus'].forEach(k => {
+          if (!content[k]) content[k] = defaultsInner();
+        });
         persist();
         renderTab(activeTab);
-        alert('Publicación cargada.');
+        toast('Publicación cargada', 'ok');
       } catch (err) {
-        alert('No se pudo leer el archivo: ' + err.message);
-      } finally {
-        e.target.value = '';
-      }
+        toast('Error al leer el archivo: ' + err.message, 'err');
+      } finally { e.target.value = ''; }
     });
-
     $('#reload').addEventListener('click', async () => {
-      if (!confirm('Esto descarta cualquier borrador local y recarga la versión publicada actual. ¿Continuar?')) return;
+      if (!confirm('Esto descarta el borrador local y recarga la versión publicada. ¿Continuar?')) return;
       localStorage.removeItem(STORAGE_KEY);
       content = null;
       await loadContent();
       renderTab(activeTab);
+      toast('Borrador descartado', 'ok');
+    });
+
+    $('#publish').addEventListener('click', async () => {
+      const btn = $('#publish');
+      btn.disabled = true;
+      const origLabel = btn.textContent;
+      btn.textContent = 'Publicando…';
+      try {
+        const res = await fetch('/api/publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ passwordHash: PASS_HASH, content })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) {
+          const h = await currentHash();
+          localStorage.setItem(PUBLISHED_KEY, h);
+          updatePublishStatus();
+          toast('¡Publicado! En ~30 segundos lo ves en el sitio.', 'ok');
+        } else if (res.status === 503 && data.error === 'github_token_missing') {
+          toast(data.message || 'El backend no está configurado.', 'err');
+        } else if (res.status === 401) {
+          toast('La sesión expiró. Volvé a entrar.', 'err');
+        } else {
+          toast('No se pudo publicar: ' + (data.error || res.status), 'err');
+          console.error('publish failed', data);
+        }
+      } catch (err) {
+        toast('Error de red: ' + err.message, 'err');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 2l-4 4M12 2l4 4M20 16v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"/></svg> Publicar al sitio';
+      }
     });
 
     /* ==================== INIT ==================== */
