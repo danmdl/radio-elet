@@ -749,6 +749,18 @@
   }
 
   async function publish() {
+    // Safety net: never publish suspiciously-empty content (guards against
+    // wiping the live site if the editor somehow loaded a blank state).
+    const h = (content.home && content.home.hero) || {};
+    const t = h.title || {};
+    const heroEmpty = !(t.prefix || t.accent || t.suffix);
+    const noCards = !(content.home && content.home.cards && content.home.cards.length);
+    const noFooter = !(content.footer && content.footer.items && content.footer.items.length);
+    if (heroEmpty && noCards && noFooter) {
+      const ok = confirm('Atención: el contenido se ve casi vacío (sin título, sin tarjetas, sin pie). ¿Seguro que querés publicarlo así? Esto reemplaza lo que hay en el sitio.');
+      if (!ok) return;
+    }
+
     const btn = $('#tb-publish');
     btn.disabled = true;
     const orig = btn.textContent;
