@@ -254,11 +254,15 @@
       if (id !== 'programas' && Array.isArray(d.notes)) {
         const slot = $('.page-content', main);
         if (slot) {
+          const noteBodyHTML = (b) => {
+            const s = b == null ? '' : String(b);
+            return /<[a-z][\s\S]*>/i.test(s) ? s : esc(s).replace(/\n/g, '<br>');
+          };
           slot.innerHTML = d.notes.length
             ? d.notes.map(n =>
                 '<article class="placeholder-card">' +
                   '<h2>' + esc(n.title || '') + '</h2>' +
-                  '<p>' + nl2br(n.body || '') + '</p>' +
+                  '<div class="note-body">' + noteBodyHTML(n.body) + '</div>' +
                 '</article>'
               ).join('') + '<div style="text-align:center; margin-top:18px;"><a href="#" class="back-link" data-route-link="home">← Volver al inicio</a></div>'
             : '<div class="placeholder-card"><h2>Próximamente</h2><p>Estamos preparando esta sección.</p><a href="#" class="back-link" data-route-link="home">← Volver al inicio</a></div>';
@@ -619,6 +623,14 @@
     if (id !== 'programas') decorateNotes(id, main);
   }
 
+  // Convert a stored note body to HTML for editing/display.
+  // New bodies are already HTML; old plain-text bodies get newlines -> <br>.
+  function bodyToHTML(body) {
+    const b = body == null ? '' : String(body);
+    const looksHTML = /<[a-z][\s\S]*>/i.test(b);
+    return looksHTML ? b : escHTML(b).replace(/\n/g, '<br>');
+  }
+
   function decorateNotes(id, main) {
     const slot = $('.page-content', main);
     if (!slot) return;
@@ -635,9 +647,22 @@
           <button class="admin-btn danger" data-act="del" title="Eliminar nota">× Eliminar</button>
         </span>
         <h2 data-edit-field="title" contenteditable="plaintext-only" data-edit="1" data-placeholder="Título de la nota">${escHTML(n.title || '')}</h2>
-        <p data-edit-field="body" contenteditable="plaintext-only" data-edit="1" data-placeholder="Contenido de la nota...">${escHTML(n.body || '').replace(/\n/g, '<br>')}</p>
+        <div class="rt-toolbar" contenteditable="false">
+          <button type="button" data-cmd="bold" title="Negrita"><b>N</b></button>
+          <button type="button" data-cmd="italic" title="Cursiva"><i>K</i></button>
+          <span class="rt-sep"></span>
+          <button type="button" data-cmd="title" title="Subtítulo">Subtítulo</button>
+          <button type="button" data-cmd="big" title="Texto grande">Grande</button>
+          <button type="button" data-cmd="normal" title="Texto normal">Normal</button>
+          <span class="rt-sep"></span>
+          <button type="button" data-cmd="bullets" title="Lista con viñetas">• Lista</button>
+          <button type="button" data-cmd="image" title="Insertar imagen">🖼️ Imagen</button>
+        </div>
+        <div class="rt-body" data-edit-field="body" data-rich="1" contenteditable="true" data-placeholder="Escribí el contenido… (usá la barra para negrita, tamaños, imágenes)">${bodyToHTML(n.body)}</div>
       `;
       slot.appendChild(card);
+
+      wireRichToolbar(card, notes, idx, id, main);
     });
 
     // Add button
@@ -646,7 +671,7 @@
     addWrap.innerHTML = '<button class="admin-add" type="button">+ Agregar nota</button>';
     slot.appendChild(addWrap);
     addWrap.querySelector('.admin-add').onclick = () => {
-      content[id].notes.push({ title: 'Nueva nota', body: 'Escribí acá el contenido...' });
+      content[id].notes.push({ title: 'Nueva nota', body: 'Escribí acá el contenido…' });
       persist();
       decorateNotes(id, main);
       const last = slot.querySelector('article:last-of-type [data-edit-field="title"]');
@@ -663,12 +688,72 @@
     initSortable(slot, notes, () => { persist(); decorateNotes(id, main); }, '.placeholder-card');
   }
 
+  // Rich-text toolbar wiring for a single note card.
+  function wireRichToolbar(card, notes, idx, id, main) {
+    const body = card.querySelector('.rt-body');
+    const toolbar = card.querySelector('.rt-toolbar');
+    if (!body || !toolbar) return;
+
+    const refreshRich = () => {
+      const hasContent = body.textContent.trim() !== '' || body.querySelector('img');
+      body.dataset.empty = hasContent ? 'false' : 'true';
+    };
+    refreshRich();
+    const save = () => { notes[idx].body = body.innerHTML; refreshRich(); persist(); };
+
+    // Keep focus in the body when clicking toolbar buttons.
+    toolbar.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('mousedown', (e) => e.preventDefault());
+      btn.addEventListener('click', async () => {
+        const cmd = btn.dataset.cmd;
+        body.focus();
+        try {
+          if (cmd === 'bold') document.execCommand('bold');
+          else if (cmd === 'italic') document.execCommand('italic');
+          else if (cmd === 'title') document.execCommand('formatBlock', false, 'h3');
+          else if (cmd === 'big') document.execCommand('fontSize', false, '5');
+          else if (cmd === 'normal') { document.execCommand('formatBlock', false, 'p'); document.execCommand('fontSize', false, '3'); }
+          else if (cmd === 'bullets') document.execCommand('insertUnorderedList');
+          else if (cmd === 'image') { await insertImageIntoBody(body); }
+        } catch (e) { /* ignore */ }
+        save();
+      });
+    });
+
+    body.addEventListener('input', save);
+    body.addEventListener('blur', save);
+  }
+
+  // Pick an image, resize to base64, and insert it inline at the cursor.
+  async function insertImageIntoBody(body) {
+    return new Promise((resolve) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async () => {
+        const file = input.files && input.files[0];
+        if (!file || !file.type.startsWith('image/')) { resolve(); return; }
+        toast('Procesando imagen…');
+        let dataUrl;
+        try { dataUrl = await resizeImage(file, 1000, 0.8); }
+        catch (e) { dataUrl = await fileToDataURL(file); }
+        body.focus();
+        const html = '<img src="' + dataUrl + '" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:12px auto;"/>';
+        document.execCommand('insertHTML', false, html);
+        toast('Imagen insertada', 'ok');
+        resolve();
+      };
+      input.click();
+    });
+  }
+
   // Wire common list row controls: delete buttons + per-field input handlers
   function wireListRows(container, arr, rerender, basePath) {
     $$('.admin-row', container).forEach(row => {
       const idx = parseInt(row.dataset.idx, 10);
       $$('[data-edit-field]', row).forEach(el => {
         const field = el.dataset.editField;
+        if (el.dataset.rich) return; // rich body handled by wireRichToolbar
         el.addEventListener('input', () => {
           let val = el.innerText;
           if (field !== 'body' && field !== 'text') val = val.replace(/[\r\n]+/g, ' ');

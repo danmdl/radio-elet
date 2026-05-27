@@ -1063,6 +1063,12 @@ img { display: block; max-width: 100%; }
   letter-spacing: 0.02em;
 }
 
+.note-body { color: var(--text-soft); line-height: 1.6; }
+.note-body img { max-width: 100%; height: auto; border-radius: 10px; display: block; margin: 14px auto; }
+.note-body h3 { font-family: 'Oswald', sans-serif; color: var(--text); font-size: 20px; margin: 16px 0 6px; }
+.note-body ul, .note-body ol { text-align: left; display: inline-block; margin: 8px 0; padding-left: 20px; }
+.note-body b, .note-body strong { color: var(--text); }
+
 .placeholder-card p {
   color: var(--text-soft);
   font-size: 14px;
@@ -2475,6 +2481,24 @@ window.__initHeroSlides();
   function setText(el, val) { if (el && val != null) el.textContent = val; }
   function setHTML(el, val) { if (el && val != null) el.innerHTML = val; }
 
+  // Note bodies may be rich HTML (new) or plain text with newlines (old).
+  function noteBodyHTML(b) {
+    const s = b == null ? '' : String(b);
+    return /<[a-z][\s\S]*>/i.test(s) ? s : esc(s).replace(/\n/g, '<br>');
+  }
+  // Strip anything dangerous from admin-authored HTML before it renders.
+  function sanitizeInPlace(el) {
+    el.querySelectorAll('script,iframe,object,embed,link,meta,style,form').forEach(n => n.remove());
+    el.querySelectorAll('*').forEach(node => {
+      [...node.attributes].forEach(a => {
+        const name = a.name.toLowerCase();
+        const val = (a.value || '').trim().toLowerCase();
+        if (name.startsWith('on')) node.removeAttribute(a.name);
+        else if ((name === 'href' || name === 'src') && val.startsWith('javascript:')) node.removeAttribute(a.name);
+      });
+    });
+  }
+
   function applyHome(data) {
     if (!data) return;
     const home = document.getElementById('route-home');
@@ -2606,13 +2630,14 @@ window.__initHeroSlides();
           const cards = data.notes.map(n => (
             '<article class="placeholder-card">' +
               '<h2>' + esc(n.title || '') + '</h2>' +
-              '<p>' + nl2br(n.body || '') + '</p>' +
+              '<div class="note-body">' + noteBodyHTML(n.body) + '</div>' +
             '</article>'
           )).join('');
           slot.innerHTML = cards +
             '<div style="text-align:center; margin-top:18px;">' +
               '<a href="#" class="back-link" data-route-link="home">← Volver al inicio</a>' +
             '</div>';
+          slot.querySelectorAll('.note-body').forEach(sanitizeInPlace);
         }
       }
     }
@@ -2643,10 +2668,10 @@ window.__initHeroSlides();
   if (!isAdmin) return;
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = '/editor.css?v=8';
+  css.href = '/editor.css?v=9';
   document.head.appendChild(css);
   const js = document.createElement('script');
-  js.src = '/editor.js?v=8';
+  js.src = '/editor.js?v=9';
   js.defer = true;
   document.body.appendChild(js);
 })();

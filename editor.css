@@ -249,6 +249,56 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
 [data-edit] { caret-color: #1ea03e; }
 [data-edit]:focus { caret-color: #1ea03e; }
 
+/* Rich-text toolbar for note bodies (admin only) */
+.rt-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  margin: 10px 0 8px;
+  padding: 6px;
+  background: #f5f8f5;
+  border: 1px solid #e3e6e3;
+  border-radius: 10px;
+}
+.rt-toolbar button {
+  min-width: 32px;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid #e3e6e3;
+  border-radius: 7px;
+  background: white;
+  color: #1a1a1a;
+  font-size: 13px;
+  font-family: system-ui, sans-serif;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.rt-toolbar button:hover { background: #e8f7ea; border-color: #1ea03e; color: #167f30; }
+.rt-toolbar button:active { transform: translateY(1px); }
+.rt-toolbar .rt-sep { width: 1px; height: 20px; background: #d8ddd8; margin: 0 3px; }
+
+.rt-body {
+  outline: none;
+  min-height: 60px;
+  border-radius: 8px;
+  transition: box-shadow 0.15s;
+}
+.rt-body:focus { box-shadow: 0 0 0 2px rgba(30,160,62,0.35); }
+.rt-body:hover { box-shadow: 0 0 0 1px rgba(30,160,62,0.2); }
+.rt-body img { max-width: 100%; height: auto; border-radius: 10px; }
+.rt-body[data-empty="true"]:not(:focus)::before {
+  content: attr(data-placeholder);
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Rendered note body on the public site */
+.note-body img { max-width: 100%; height: auto; border-radius: 10px; display: block; margin: 12px auto; }
+.note-body h3 { font-family: 'Oswald', sans-serif; font-size: 20px; margin: 14px 0 6px; }
+.note-body ul { text-align: left; display: inline-block; margin: 8px 0; }
+
 /* Hero slide manager (admin only) */
 .admin-slide-manager {
   margin-top: 16px;
