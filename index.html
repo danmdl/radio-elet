@@ -1608,8 +1608,7 @@ body.is-inner .back-home { display: inline-flex; }
     <div>
       <div class="hero-photo">
         <div class="hero-slides">
-          <img class="hero-slide active" src="portada.jpg" onerror="this.onerror=null;this.src='hosts.png';" alt="Honramos el Legado del Apóstol Adrian Juniors — Semana especial en Radio Elet"/>
-          <img class="hero-slide" src="hosts.png" alt="Conductores de Elet Radio Vida en vivo"/>
+          <img class="hero-slide active" src="hosts.png" alt="Conductores de Elet Radio Vida en vivo"/>
           <img class="hero-slide" src="https://images.unsplash.com/photo-1485579149621-3123dd979885?auto=format&fit=crop&w=1400&q=80" alt="Micrófono de Radio Elet"/>
         </div>
         <div class="photo-placeholder" style="display:none;">
@@ -1626,7 +1625,6 @@ body.is-inner .back-home { display: inline-flex; }
       <div class="hero-dots" role="tablist" aria-label="Galería">
         <button class="active" aria-label="Foto 1" data-slide="0"></button>
         <button aria-label="Foto 2" data-slide="1"></button>
-        <button aria-label="Foto 3" data-slide="2"></button>
       </div>
     </div>
 
@@ -2189,27 +2187,30 @@ body.is-inner .back-home { display: inline-flex; }
 </script>
 
   <script>
-/* Hero slideshow */
-(function () {
+/* Hero slideshow — re-initializable so dynamically-rendered slides work */
+window.__initHeroSlides = function () {
+  const photo = document.querySelector('.hero-photo');
   const slides = document.querySelectorAll('.hero-slide');
   const dots = document.querySelectorAll('.hero-dots button');
-  if (slides.length < 2 || !dots.length) return;
-  let i = 0;
-  let timer;
+  if (window.__heroTimer) { clearInterval(window.__heroTimer); window.__heroTimer = null; }
+  if (!photo || slides.length === 0) return;
 
+  let i = 0;
   function go(n) {
     i = (n + slides.length) % slides.length;
     slides.forEach((s, k) => s.classList.toggle('active', k === i));
     dots.forEach((d, k) => d.classList.toggle('active', k === i));
   }
-  function start() { stop(); timer = setInterval(() => go(i + 1), 5000); }
-  function stop() { if (timer) clearInterval(timer); }
+  function start() { stop(); const ms = Math.max(1, (window.__heroSlideSeconds || 5)) * 1000; if (slides.length > 1) window.__heroTimer = setInterval(() => go(i + 1), ms); }
+  function stop() { if (window.__heroTimer) { clearInterval(window.__heroTimer); window.__heroTimer = null; } }
 
   dots.forEach((d, k) => d.addEventListener('click', () => { go(k); start(); }));
-  document.querySelector('.hero-photo').addEventListener('mouseenter', stop);
-  document.querySelector('.hero-photo').addEventListener('mouseleave', start);
+  photo.addEventListener('mouseenter', stop);
+  photo.addEventListener('mouseleave', start);
+  go(0);
   start();
-})();
+};
+window.__initHeroSlides();
 </script>
 
   <audio id="audioEl" preload="none">
@@ -2427,6 +2428,24 @@ body.is-inner .back-home { display: inline-flex; }
       setText(rightAccent, h.right_accent);
       const rightSub = home.querySelector('.hero-right .sub');
       setHTML(rightSub, nl2br(h.right_sub || ''));
+
+      // Slides (gallery) — render from data when present
+      if (h.slide_seconds) window.__heroSlideSeconds = h.slide_seconds;
+      if (Array.isArray(h.slides) && h.slides.length) {
+        const slidesWrap = home.querySelector('.hero-slides');
+        const dotsWrap = home.querySelector('.hero-dots');
+        if (slidesWrap) {
+          slidesWrap.innerHTML = h.slides.map((s, i) =>
+            '<img class="hero-slide' + (i === 0 ? ' active' : '') + '" src="' + esc(s.src) + '" alt="' + esc(s.alt || '') + '"/>'
+          ).join('');
+        }
+        if (dotsWrap) {
+          dotsWrap.innerHTML = h.slides.map((s, i) =>
+            '<button class="' + (i === 0 ? 'active' : '') + '" aria-label="Foto ' + (i + 1) + '" data-slide="' + i + '"></button>'
+          ).join('');
+        }
+        if (typeof window.__initHeroSlides === 'function') window.__initHeroSlides();
+      }
     }
 
     // Ticker
@@ -2555,10 +2574,10 @@ body.is-inner .back-home { display: inline-flex; }
   if (!isAdmin) return;
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = '/editor.css?v=2';
+  css.href = '/editor.css?v=3';
   document.head.appendChild(css);
   const js = document.createElement('script');
-  js.src = '/editor.js?v=2';
+  js.src = '/editor.js?v=3';
   js.defer = true;
   document.body.appendChild(js);
 })();

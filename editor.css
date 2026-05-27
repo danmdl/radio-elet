@@ -249,26 +249,107 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
 [data-edit] { caret-color: #1ea03e; }
 [data-edit]:focus { caret-color: #1ea03e; }
 
-/* Hero "change cover image" button (admin only) */
-.admin-hero-upload {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  z-index: 40;
-  background: rgba(255,255,255,0.95);
-  color: #167f30;
-  border: 1px solid #1ea03e;
-  border-radius: 999px;
-  padding: 8px 16px;
+/* Hero slide manager (admin only) */
+.admin-slide-manager {
+  margin-top: 16px;
+  background: white;
+  border: 1px solid #e3e6e3;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  font-family: system-ui, sans-serif;
+}
+.admin-slide-manager .asm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.admin-slide-manager .asm-title {
   font-family: 'Oswald', system-ui, sans-serif;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-  transition: background 0.15s, transform 0.1s;
+  color: #167f30;
 }
-.admin-hero-upload:hover { background: #1ea03e; color: white; }
-.admin-hero-upload:active { transform: scale(0.97); }
-.admin-hero-upload:disabled { opacity: 0.7; cursor: wait; }
+.admin-slide-manager .asm-dur {
+  font-size: 12px;
+  color: #444;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.admin-slide-manager .asm-seconds {
+  width: 52px;
+  padding: 5px 6px;
+  border: 1.5px solid #e3e6e3;
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: center;
+  outline: none;
+}
+.admin-slide-manager .asm-seconds:focus { border-color: #1ea03e; }
+.admin-slide-manager .asm-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.admin-slide-manager .asm-thumb {
+  position: relative;
+  width: 84px;
+  height: 54px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e3e6e3;
+  background: #11250c;
+}
+.admin-slide-manager .asm-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.admin-slide-manager .asm-grip {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 5px;
+  padding: 1px 4px;
+  font-size: 11px;
+  color: #555;
+  cursor: grab;
+  line-height: 1;
+}
+.admin-slide-manager .asm-del {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(214,40,40,0.92);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-slide-manager .asm-del:hover { background: #d62828; }
+.admin-slide-manager .asm-add {
+  margin: 0;
+  font-size: 12px;
+  padding: 9px 18px;
+}
+.admin-slide-manager .asm-hint {
+  font-size: 11px;
+  color: #888;
+  margin-top: 8px;
+}
+.admin-slide-manager .asm-hint strong { color: #167f30; }

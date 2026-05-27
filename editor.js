@@ -172,6 +172,19 @@
       const rsub = $('.hero-right .sub', home);
       if (rsub) rsub.innerHTML = nl2br(h.right_sub || '');
 
+      // Render hero slides from the draft
+      if (Array.isArray(h.slides) && h.slides.length) {
+        const slidesWrap = $('.hero-slides', home);
+        const dotsWrap = $('.hero-dots', home);
+        if (slidesWrap) slidesWrap.innerHTML = h.slides.map((s, i) =>
+          '<img class="hero-slide' + (i === 0 ? ' active' : '') + '" src="' + esc(s.src) + '" alt="' + esc(s.alt || '') + '"/>'
+        ).join('');
+        if (dotsWrap) dotsWrap.innerHTML = h.slides.map((s, i) =>
+          '<button class="' + (i === 0 ? 'active' : '') + '" aria-label="Foto ' + (i + 1) + '" data-slide="' + i + '"></button>'
+        ).join('');
+        if (typeof window.__initHeroSlides === 'function') window.__initHeroSlides();
+      }
+
       const t = content.home.ticker;
       const tb = $('.ticker-badge', home);     if (tb) tb.textContent = t.badge || '';
       const ti = $('.ticker-intro', home);     if (ti) ti.textContent = t.intro || '';
@@ -313,57 +326,147 @@
 
     decorateTickerItems(home);
     decorateCards(home);
-    setupHeroUpload(home);
+    setupSlideManager(home);
   }
 
-  /* ---------- HERO IMAGE UPLOAD ---------- */
-  function setupHeroUpload(home) {
+  /* ---------- HERO SLIDE MANAGER (add / reorder / delete / duration) ---------- */
+  function ensureSlides() {
+    content.home = content.home || {};
+    content.home.hero = content.home.hero || {};
+    if (!Array.isArray(content.home.hero.slides)) content.home.hero.slides = [];
+    if (typeof content.home.hero.slide_seconds !== 'number') content.home.hero.slide_seconds = 5;
+    return content.home.hero;
+  }
+
+  function renderHeroSlides(home) {
+    const hero = ensureSlides();
+    const slidesWrap = $('.hero-slides', home);
+    const dotsWrap = $('.hero-dots', home);
+    if (slidesWrap) slidesWrap.innerHTML = hero.slides.map((s, i) =>
+      '<img class="hero-slide' + (i === 0 ? ' active' : '') + '" src="' + escHTML(s.src) + '" alt="' + escHTML(s.alt || '') + '"/>'
+    ).join('');
+    if (dotsWrap) dotsWrap.innerHTML = hero.slides.map((s, i) =>
+      '<button class="' + (i === 0 ? 'active' : '') + '" aria-label="Foto ' + (i + 1) + '" data-slide="' + i + '"></button>'
+    ).join('');
+    window.__heroSlideSeconds = hero.slide_seconds;
+    if (typeof window.__initHeroSlides === 'function') window.__initHeroSlides();
+  }
+
+  function setupSlideManager(home) {
+    const hero = ensureSlides();
     const photo = $('.hero-photo', home);
-    if (!photo || photo.querySelector('.admin-hero-upload')) return;
+    if (!photo) return;
 
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'admin-hero-upload';
-    btn.innerHTML = '📷 Cambiar portada';
-    photo.appendChild(btn);
+    // Build (or reuse) the manager panel right after the hero photo
+    let panel = home.querySelector('.admin-slide-manager');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.className = 'admin-slide-manager';
+      photo.insertAdjacentElement('afterend', panel);
+    }
 
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.style.display = 'none';
-    photo.appendChild(input);
+    panel.innerHTML = `
+      <div class="asm-head">
+        <span class="asm-title">Fotos del carrusel</span>
+        <label class="asm-dur">Cada
+          <input type="number" min="1" max="60" step="1" class="asm-seconds" value="${hero.slide_seconds}"/>
+          seg.
+        </label>
+      </div>
+      <div class="asm-thumbs"></div>
+      <button type="button" class="admin-add asm-add">+ Agregar foto</button>
+      <div class="asm-hint">Arrastrá para reordenar · ✕ para quitar · acordate de <strong>Publicar al sitio</strong></div>
+      <input type="file" accept="image/*" class="asm-file" style="display:none"/>
+    `;
 
-    btn.addEventListener('click', () => input.click());
-    input.addEventListener('change', async () => {
-      const file = input.files && input.files[0];
-      input.value = '';
+    const thumbs = panel.querySelector('.asm-thumbs');
+    hero.slides.forEach((s, i) => {
+      const t = document.createElement('div');
+      t.className = 'asm-thumb';
+      t.dataset.idx = i;
+      t.innerHTML = `
+        <span class="asm-grip" title="Arrastrar">⋮⋮</span>
+        <img src="${escHTML(s.src)}" alt=""/>
+        <button type="button" class="asm-del" title="Quitar foto">✕</button>
+      `;
+      thumbs.appendChild(t);
+    });
+
+    // Reorder
+    if (sortableLib) {
+      new sortableLib(thumbs, {
+        handle: '.asm-grip',
+        animation: 160,
+        ghostClass: 'sortable-ghost',
+        onEnd: (evt) => {
+          if (evt.oldIndex === evt.newIndex) return;
+          const [m] = hero.slides.splice(evt.oldIndex, 1);
+          hero.slides.splice(evt.newIndex, 0, m);
+          persist();
+          renderHeroSlides(home);
+          setupSlideManager(home);
+        }
+      });
+    }
+
+    // Delete
+    thumbs.querySelectorAll('.asm-del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.closest('.asm-thumb').dataset.idx, 10);
+        if (hero.slides.length <= 1) { toast('Tiene que quedar al menos una foto.', 'err'); return; }
+        if (confirm('¿Quitar esta foto del carrusel?')) {
+          hero.slides.splice(idx, 1);
+          persist();
+          renderHeroSlides(home);
+          setupSlideManager(home);
+        }
+      });
+    });
+
+    // Duration
+    const secInput = panel.querySelector('.asm-seconds');
+    secInput.addEventListener('input', () => {
+      let v = parseInt(secInput.value, 10);
+      if (isNaN(v) || v < 1) v = 1;
+      if (v > 60) v = 60;
+      hero.slide_seconds = v;
+      persist();
+      window.__heroSlideSeconds = v;
+      if (typeof window.__initHeroSlides === 'function') window.__initHeroSlides();
+    });
+
+    // Add photo
+    const fileInput = panel.querySelector('.asm-file');
+    const addBtn = panel.querySelector('.asm-add');
+    addBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files && fileInput.files[0];
+      fileInput.value = '';
       if (!file) return;
       if (!file.type.startsWith('image/')) { toast('Eso no es una imagen.', 'err'); return; }
 
       toast('Procesando imagen…');
       let dataUrl;
-      try {
-        dataUrl = await resizeImage(file, 1920, 0.85);
-      } catch (e) {
-        dataUrl = await fileToDataURL(file);
-      }
-
-      // Instant local preview on the first slide
-      const firstSlide = photo.querySelector('.hero-slide');
-      if (firstSlide) { firstSlide.src = dataUrl; firstSlide.classList.add('active'); }
-
+      try { dataUrl = await resizeImage(file, 1920, 0.85); }
+      catch (e) { dataUrl = await fileToDataURL(file); }
       const base64 = dataUrl.split(',')[1];
-      btn.disabled = true;
-      btn.innerHTML = 'Subiendo…';
+      const fname = 'foto-' + Date.now() + '.jpg';
+
+      addBtn.disabled = true;
+      addBtn.textContent = 'Subiendo…';
       try {
         const res = await fetch('/api/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ passwordHash: PASS_HASH, filename: 'portada.jpg', dataBase64: base64, message: 'admin: cambiar portada del hero' })
+          body: JSON.stringify({ passwordHash: PASS_HASH, filename: fname, dataBase64: base64, message: 'admin: agregar foto al carrusel' })
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.ok) {
-          toast('¡Portada subida! En ~30s queda fija en el sitio.', 'ok');
+          hero.slides.push({ src: fname, alt: '' });
+          persist();
+          renderHeroSlides(home);
+          setupSlideManager(home);
+          toast('Foto agregada. Apretá "Publicar al sitio" para que quede fija.', 'ok');
         } else if (res.status === 503 && data.error === 'github_token_missing') {
           toast(data.message || 'Backend no configurado.', 'err');
         } else if (res.status === 401) {
@@ -374,8 +477,8 @@
       } catch (err) {
         toast('Error de red: ' + err.message, 'err');
       } finally {
-        btn.disabled = false;
-        btn.innerHTML = '📷 Cambiar portada';
+        addBtn.disabled = false;
+        addBtn.textContent = '+ Agregar foto';
       }
     });
   }
