@@ -596,13 +596,6 @@ img { display: block; max-width: 100%; }
   box-shadow: 0 18px 40px -16px rgba(15, 60, 25, 0.45), 0 2px 6px rgba(15, 60, 25, 0.08);
 }
 
-.hero-photo img,
-.hero-slide {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .hero-slides {
   position: absolute;
   inset: 0;
@@ -611,12 +604,27 @@ img { display: block; max-width: 100%; }
   position: absolute;
   inset: 0;
   opacity: 0;
-  transform: scale(1.03);
-  transition: opacity 0.6s ease, transform 1.2s ease;
+  transition: opacity 0.6s ease;
+  overflow: hidden;
 }
-.hero-slide.active {
-  opacity: 1;
-  transform: scale(1);
+.hero-slide.active { opacity: 1; }
+
+/* Blurred backdrop fills the box; the full image sits on top uncropped */
+.hero-slide .hs-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(24px) brightness(0.6);
+  transform: scale(1.18);
+}
+.hero-slide img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
 }
 
 .hero-photo::after {
@@ -658,11 +666,11 @@ img { display: block; max-width: 100%; }
 
 .hero-dots span,
 .hero-dots button {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--border);
-  border: none;
+  background: #aebfb0;
+  border: 1.5px solid rgba(0,0,0,0.18);
   padding: 0;
   cursor: pointer;
   transition: background 0.2s, width 0.25s;
@@ -671,10 +679,39 @@ img { display: block; max-width: 100%; }
 .hero-dots span.active,
 .hero-dots button.active {
   background: var(--green);
-  width: 22px;
-  border-radius: 4px;
+  border-color: var(--green-dark);
+  width: 26px;
+  border-radius: 5px;
 }
-.hero-dots button:hover { background: var(--green-dark); }
+.hero-dots button:hover { background: var(--green); }
+
+/* Prev / next arrows over the hero photo */
+.hero-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.9);
+  color: var(--green-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s, transform 0.15s;
+}
+.hero-photo:hover .hero-nav { opacity: 1; }
+.hero-nav:hover { background: #fff; transform: translateY(-50%) scale(1.08); }
+.hero-nav:active { transform: translateY(-50%) scale(0.96); }
+.hero-nav svg { width: 22px; height: 22px; }
+.hero-nav.hero-prev { left: 12px; }
+.hero-nav.hero-next { right: 12px; }
+@media (hover: none) { .hero-nav { opacity: 0.9; } }
 
 .hero-right {
   display: flex;
@@ -1608,8 +1645,14 @@ body.is-inner .back-home { display: inline-flex; }
     <div>
       <div class="hero-photo">
         <div class="hero-slides">
-          <img class="hero-slide active" src="hosts.png" alt="Conductores de Elet Radio Vida en vivo"/>
-          <img class="hero-slide" src="https://images.unsplash.com/photo-1485579149621-3123dd979885?auto=format&fit=crop&w=1400&q=80" alt="Micrófono de Radio Elet"/>
+          <div class="hero-slide active">
+            <div class="hs-bg" style="background-image:url('hosts.png')"></div>
+            <img src="hosts.png" alt="Conductores de Elet Radio Vida en vivo"/>
+          </div>
+          <div class="hero-slide">
+            <div class="hs-bg" style="background-image:url('https://images.unsplash.com/photo-1485579149621-3123dd979885?auto=format&fit=crop&w=1400&q=80')"></div>
+            <img src="https://images.unsplash.com/photo-1485579149621-3123dd979885?auto=format&fit=crop&w=1400&q=80" alt="Micrófono de Radio Elet"/>
+          </div>
         </div>
         <div class="photo-placeholder" style="display:none;">
           <svg viewBox="0 0 24 24" fill="currentColor">
@@ -1621,6 +1664,12 @@ body.is-inner .back-home { display: inline-flex; }
           <span class="pc-dot"></span>
           <span class="pc-text">En el aire — FM 99.3</span>
         </div>
+        <button class="hero-nav hero-prev" aria-label="Foto anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="hero-nav hero-next" aria-label="Foto siguiente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
       </div>
       <div class="hero-dots" role="tablist" aria-label="Galería">
         <button class="active" aria-label="Foto 1" data-slide="0"></button>
@@ -2187,11 +2236,24 @@ body.is-inner .back-home { display: inline-flex; }
 </script>
 
   <script>
+/* Shared slide markup: full image (contain) over a blurred backdrop of itself,
+   so photos of any shape look good without ugly bars. */
+window.__heroSlideHTML = function (src, alt, active) {
+  const s = String(src || '').replace(/"/g, '&quot;');
+  const a = String(alt || '').replace(/"/g, '&quot;');
+  return '<div class="hero-slide' + (active ? ' active' : '') + '">' +
+           '<div class="hs-bg" style="background-image:url(&quot;' + s + '&quot;)"></div>' +
+           '<img src="' + s + '" alt="' + a + '"/>' +
+         '</div>';
+};
+
 /* Hero slideshow — re-initializable so dynamically-rendered slides work */
 window.__initHeroSlides = function () {
   const photo = document.querySelector('.hero-photo');
   const slides = document.querySelectorAll('.hero-slide');
   const dots = document.querySelectorAll('.hero-dots button');
+  const prev = document.querySelector('.hero-nav.hero-prev');
+  const next = document.querySelector('.hero-nav.hero-next');
   if (window.__heroTimer) { clearInterval(window.__heroTimer); window.__heroTimer = null; }
   if (!photo || slides.length === 0) return;
 
@@ -2205,6 +2267,13 @@ window.__initHeroSlides = function () {
   function stop() { if (window.__heroTimer) { clearInterval(window.__heroTimer); window.__heroTimer = null; } }
 
   dots.forEach((d, k) => d.addEventListener('click', () => { go(k); start(); }));
+  if (prev) prev.onclick = () => { go(i - 1); start(); };
+  if (next) next.onclick = () => { go(i + 1); start(); };
+  // Hide arrows when there's only one slide
+  const showNav = slides.length > 1 ? '' : 'none';
+  if (prev) prev.style.display = showNav;
+  if (next) next.style.display = showNav;
+
   photo.addEventListener('mouseenter', stop);
   photo.addEventListener('mouseleave', start);
   go(0);
@@ -2436,7 +2505,7 @@ window.__initHeroSlides();
         const dotsWrap = home.querySelector('.hero-dots');
         if (slidesWrap) {
           slidesWrap.innerHTML = h.slides.map((s, i) =>
-            '<img class="hero-slide' + (i === 0 ? ' active' : '') + '" src="' + esc(s.src) + '" alt="' + esc(s.alt || '') + '"/>'
+            window.__heroSlideHTML(s.src, s.alt || '', i === 0)
           ).join('');
         }
         if (dotsWrap) {
@@ -2574,10 +2643,10 @@ window.__initHeroSlides();
   if (!isAdmin) return;
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = '/editor.css?v=7';
+  css.href = '/editor.css?v=8';
   document.head.appendChild(css);
   const js = document.createElement('script');
-  js.src = '/editor.js?v=7';
+  js.src = '/editor.js?v=8';
   js.defer = true;
   document.body.appendChild(js);
 })();

@@ -192,7 +192,7 @@
         const slidesWrap = $('.hero-slides', home);
         const dotsWrap = $('.hero-dots', home);
         if (slidesWrap) slidesWrap.innerHTML = h.slides.map((s, i) =>
-          '<img class="hero-slide' + (i === 0 ? ' active' : '') + '" src="' + esc(resolveSrc(s.src)) + '" alt="' + esc(s.alt || '') + '"/>'
+          window.__heroSlideHTML(resolveSrc(s.src), s.alt || '', i === 0)
         ).join('');
         if (dotsWrap) dotsWrap.innerHTML = h.slides.map((s, i) =>
           '<button class="' + (i === 0 ? 'active' : '') + '" aria-label="Foto ' + (i + 1) + '" data-slide="' + i + '"></button>'
@@ -358,7 +358,7 @@
     const slidesWrap = $('.hero-slides', home);
     const dotsWrap = $('.hero-dots', home);
     if (slidesWrap) slidesWrap.innerHTML = hero.slides.map((s, i) =>
-      '<img class="hero-slide' + (i === 0 ? ' active' : '') + '" src="' + escHTML(resolveSrc(s.src)) + '" alt="' + escHTML(s.alt || '') + '"/>'
+      window.__heroSlideHTML(resolveSrc(s.src), s.alt || '', i === 0)
     ).join('');
     if (dotsWrap) dotsWrap.innerHTML = hero.slides.map((s, i) =>
       '<button class="' + (i === 0 ? 'active' : '') + '" aria-label="Foto ' + (i + 1) + '" data-slide="' + i + '"></button>'
