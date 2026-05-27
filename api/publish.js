@@ -6,11 +6,25 @@ const PASS_HASH = '5312483a9608c7f943cde4dfd7b99ce2f89f39f5da5a5178faf880b2fea02
 
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.status(204).end();
     return;
   }
+
+  // Diagnostic: GET /api/publish shows whether the token is visible to the
+  // function (without revealing it), the target repo and branch.
+  if (req.method === 'GET') {
+    const tk = process.env.GITHUB_TOKEN || '';
+    res.status(200).json({
+      tokenConfigured: !!tk,
+      tokenLength: tk.length,
+      repo: process.env.GITHUB_REPO || 'danmdl/radio-elet',
+      branch: process.env.GITHUB_BRANCH || 'claude/deploy-radio-elet-dcCxa'
+    });
+    return;
+  }
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'method_not_allowed' });
     return;
