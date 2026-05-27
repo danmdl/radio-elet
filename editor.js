@@ -122,16 +122,14 @@
 
   /* ==================== CONTENT LOAD / APPLY ==================== */
   async function loadContent() {
-    const draft = localStorage.getItem(STORAGE_KEY);
-    if (draft) {
-      try { content = JSON.parse(draft); } catch (e) { content = null; }
-    }
-    if (!content) {
-      try {
-        const r = await fetch('/content.json?v=' + Date.now(), { cache: 'no-store' });
-        content = r.ok ? await r.json() : {};
-      } catch (e) { content = {}; }
-    }
+    // Always mirror the LIVE published content. We intentionally do NOT load a
+    // stale localStorage draft as the base — the admin must reflect exactly
+    // what the site currently shows. (A leftover draft once wiped the texts.)
+    try {
+      const r = await fetch('/content.json?v=' + Date.now(), { cache: 'no-store' });
+      content = r.ok ? await r.json() : {};
+    } catch (e) { content = {}; }
+    localStorage.removeItem(STORAGE_KEY);
     // Ensure shape
     content.home = content.home || { hero: {}, ticker: { items: [] }, cards: [] };
     content.home.hero = content.home.hero || {};
