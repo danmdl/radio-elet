@@ -2555,10 +2555,10 @@ body.is-inner .back-home { display: inline-flex; }
   if (!isAdmin) return;
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = '/editor.css?v=1';
+  css.href = '/editor.css?v=2';
   document.head.appendChild(css);
   const js = document.createElement('script');
-  js.src = '/editor.js?v=1';
+  js.src = '/editor.js?v=2';
   js.defer = true;
   document.body.appendChild(js);
 })();

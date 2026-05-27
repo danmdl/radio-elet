@@ -313,6 +313,102 @@
 
     decorateTickerItems(home);
     decorateCards(home);
+    setupHeroUpload(home);
+  }
+
+  /* ---------- HERO IMAGE UPLOAD ---------- */
+  function setupHeroUpload(home) {
+    const photo = $('.hero-photo', home);
+    if (!photo || photo.querySelector('.admin-hero-upload')) return;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'admin-hero-upload';
+    btn.innerHTML = '📷 Cambiar portada';
+    photo.appendChild(btn);
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    photo.appendChild(input);
+
+    btn.addEventListener('click', () => input.click());
+    input.addEventListener('change', async () => {
+      const file = input.files && input.files[0];
+      input.value = '';
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { toast('Eso no es una imagen.', 'err'); return; }
+
+      toast('Procesando imagen…');
+      let dataUrl;
+      try {
+        dataUrl = await resizeImage(file, 1920, 0.85);
+      } catch (e) {
+        dataUrl = await fileToDataURL(file);
+      }
+
+      // Instant local preview on the first slide
+      const firstSlide = photo.querySelector('.hero-slide');
+      if (firstSlide) { firstSlide.src = dataUrl; firstSlide.classList.add('active'); }
+
+      const base64 = dataUrl.split(',')[1];
+      btn.disabled = true;
+      btn.innerHTML = 'Subiendo…';
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ passwordHash: PASS_HASH, filename: 'portada.jpg', dataBase64: base64, message: 'admin: cambiar portada del hero' })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) {
+          toast('¡Portada subida! En ~30s queda fija en el sitio.', 'ok');
+        } else if (res.status === 503 && data.error === 'github_token_missing') {
+          toast(data.message || 'Backend no configurado.', 'err');
+        } else if (res.status === 401) {
+          toast('La sesión expiró. Volvé a entrar.', 'err');
+        } else {
+          toast('No se pudo subir (' + (data.error || res.status) + ')', 'err');
+        }
+      } catch (err) {
+        toast('Error de red: ' + err.message, 'err');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '📷 Cambiar portada';
+      }
+    });
+  }
+
+  function fileToDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+
+  // Resize/recompress client-side so uploads stay small & fast.
+  function resizeImage(file, maxW, quality) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.naturalWidth, h = img.naturalHeight;
+        if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#11250c';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        try { resolve(canvas.toDataURL('image/jpeg', quality)); }
+        catch (e) { reject(e); }
+        URL.revokeObjectURL(img.src);
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
   }
 
   function decorateTickerItems(home) {
