@@ -389,9 +389,9 @@
         </label>
       </div>
       <div class="asm-thumbs"></div>
-      <button type="button" class="admin-add asm-add">+ Agregar foto</button>
-      <div class="asm-hint">Arrastrá para reordenar · ✕ para quitar · acordate de <strong>Publicar al sitio</strong></div>
-      <input type="file" accept="image/*" class="asm-file" style="display:none"/>
+      <button type="button" class="admin-add asm-add">+ Agregar fotos</button>
+      <div class="asm-hint">Podés elegir varias a la vez · arrastrá para reordenar · ✕ para quitar · acordate de <strong>Publicar al sitio</strong></div>
+      <input type="file" accept="image/*" multiple class="asm-file" style="display:none"/>
     `;
 
     const thumbs = panel.querySelector('.asm-thumbs');
@@ -450,51 +450,64 @@
       if (typeof window.__initHeroSlides === 'function') window.__initHeroSlides();
     });
 
-    // Add photo
+    // Add photo(s) — supports selecting multiple at once
     const fileInput = panel.querySelector('.asm-file');
     const addBtn = panel.querySelector('.asm-add');
     addBtn.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', async () => {
-      const file = fileInput.files && fileInput.files[0];
+      const files = Array.from(fileInput.files || []);
       fileInput.value = '';
-      if (!file) return;
-      if (!file.type.startsWith('image/')) { toast('Eso no es una imagen.', 'err'); return; }
-
-      toast('Procesando imagen…');
-      let dataUrl;
-      try { dataUrl = await resizeImage(file, 1920, 0.85); }
-      catch (e) { dataUrl = await fileToDataURL(file); }
-      const base64 = dataUrl.split(',')[1];
-      const fname = 'foto-' + Date.now() + '.jpg';
+      const images = files.filter(f => f.type.startsWith('image/'));
+      if (!images.length) { toast('No seleccionaste imágenes.', 'err'); return; }
 
       addBtn.disabled = true;
-      addBtn.textContent = 'Subiendo…';
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ passwordHash: PASS_HASH, filename: fname, dataBase64: base64, message: 'admin: agregar foto al carrusel' })
-        });
-        const data = await res.json().catch(() => ({}));
-        if (res.ok && data.ok) {
-          sessionImages[fname] = dataUrl;   // instant preview until deploy serves the file
-          hero.slides.push({ src: fname, alt: '' });
-          persist();
-          renderHeroSlides(home);
-          setupSlideManager(home);
-          toast('Foto agregada. Apretá "Publicar al sitio" para que quede fija.', 'ok');
-        } else if (res.status === 503 && data.error === 'github_token_missing') {
-          toast(data.message || 'Backend no configurado.', 'err');
-        } else if (res.status === 401) {
-          toast('La sesión expiró. Volvé a entrar.', 'err');
-        } else {
-          toast('No se pudo subir (' + (data.error || res.status) + ')', 'err');
+      let added = 0, failed = 0, tokenMissing = false, authExpired = false;
+
+      for (let n = 0; n < images.length; n++) {
+        const file = images[n];
+        addBtn.textContent = 'Subiendo ' + (n + 1) + '/' + images.length + '…';
+
+        let dataUrl;
+        try { dataUrl = await resizeImage(file, 1920, 0.85); }
+        catch (e) { dataUrl = await fileToDataURL(file); }
+        const base64 = dataUrl.split(',')[1];
+        const fname = 'foto-' + Date.now() + '-' + n + '.jpg';
+
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ passwordHash: PASS_HASH, filename: fname, dataBase64: base64, message: 'admin: agregar foto al carrusel' })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.ok && data.ok) {
+            sessionImages[fname] = dataUrl;
+            hero.slides.push({ src: fname, alt: '' });
+            added++;
+          } else if (res.status === 503 && data.error === 'github_token_missing') {
+            tokenMissing = true; failed++; break;
+          } else if (res.status === 401) {
+            authExpired = true; failed++; break;
+          } else {
+            failed++;
+          }
+        } catch (err) {
+          failed++;
         }
-      } catch (err) {
-        toast('Error de red: ' + err.message, 'err');
-      } finally {
-        addBtn.disabled = false;
-        addBtn.textContent = '+ Agregar foto';
+      }
+
+      // Persist + refresh ONCE after processing all selected files
+      if (added) { persist(); renderHeroSlides(home); }
+      setupSlideManager(home);
+
+      if (tokenMissing) {
+        toast('Backend no configurado (GITHUB_TOKEN).', 'err');
+      } else if (authExpired) {
+        toast('La sesión expiró. Volvé a entrar.', 'err');
+      } else if (added) {
+        toast(added + (added === 1 ? ' foto agregada' : ' fotos agregadas') + (failed ? ' · ' + failed + ' fallaron' : '') + '. Apretá "Publicar al sitio".', failed ? 'err' : 'ok');
+      } else if (failed) {
+        toast('No se pudieron subir las fotos.', 'err');
       }
     });
   }
