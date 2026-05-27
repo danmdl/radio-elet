@@ -1,96 +1,83 @@
 {
+  "home": {
+    "hero": {
+      "title": { "prefix": "Radio ", "accent": "que transforma", "suffix": " vidas" },
+      "tagline": "Transmitiendo esperanza,\nfe y amor las 24 horas.",
+      "cta": "Escuchá en vivo",
+      "live_label": "EN EL AIRE — FM 99.3",
+      "right_hint": "Un mensaje de",
+      "right_accent": "Esperanza",
+      "right_sub": "para tu vida\ntodos los días.",
+      "slide_seconds": 5,
+      "slides": [
+        { "src": "foto-1779848229039.jpg", "alt": "Honramos el Legado del Apóstol Adrian Juniors — Semana especial en Radio Elet" },
+        { "src": "hosts.png", "alt": "Conductores de Elet Radio Vida en vivo" },
+        { "src": "https://images.unsplash.com/photo-1485579149621-3123dd979885?auto=format&fit=crop&w=1400&q=80", "alt": "Micrófono de Radio Elet" }
+      ]
+    },
+    "ticker": {
+      "badge": "Ahora",
+      "intro": "Todo lo que pasa, todo el día",
+      "more": "Ver más noticias →",
+      "items": [
+        { "time": "20:00", "text": "Música cristiana sin pausa, las 24 horas en Elet Radio Vida" },
+        { "time": "21:30", "text": "Reflexión nocturna y palabra de aliento" },
+        { "time": "22:00", "text": "Voces de adoración — invitados en vivo" },
+        { "time": "06:00", "text": "Mañanas con esperanza — devocional diario" }
+      ]
+    },
+    "cards": [
+      { "label": "Programas", "title": "Música, palabra y compañía", "button": "Ver programas", "target": "programas" },
+      { "label": "Agenda MJA", "title": "Eventos que transforman", "button": "Ver agenda", "target": "agenda" },
+      { "label": "Noticias del Cielo", "title": "Información que edifica", "button": "Ver noticias", "target": "noticias" },
+      { "label": "¿Conocés a Jesús?", "title": "Él cambió millones de vidas", "button": "Quiero conocer más", "target": "jesus" }
+    ]
+  },
+  "footer": {
+    "items": [
+      { "title": "Escuchá Radio Elet 99.3", "sub": "Donde estés, cuando quieras." },
+      { "title": "En vivo", "sub": "24 horas." },
+      { "title": "Desde tu celular", "sub": "App y web." },
+      { "title": "Fe que inspira", "sub": "Esperanza que transforma." }
+    ],
+    "socials_label": "Seguinos"
+  },
   "historia": {
     "eyebrow": "Nuestra esencia",
-    "title": {
-      "prefix": "Una ",
-      "accent": "historia",
-      "suffix": " que sigue creciendo"
-    },
+    "title": { "prefix": "Una ", "accent": "historia", "suffix": " que sigue creciendo" },
     "lead": "Más de dos décadas transmitiendo esperanza, fe y amor a toda la región.",
     "notes": [
-      {
-        "title": "Próximamente",
-        "body": "Estamos reuniendo los hitos, las voces y las historias que dieron forma a Radio Elet desde sus inicios hasta hoy."
-      }
+      { "title": "Próximamente", "body": "Estamos reuniendo los hitos, las voces y las historias que dieron forma a Radio Elet desde sus inicios hasta hoy." }
     ]
   },
   "agenda": {
-    "eyebrow": "Movimiento Juvenil",
-    "title": {
-      "prefix": "Agenda ",
-      "accent": "MJA",
-      "suffix": ""
-    },
+    "eyebrow": "Movimiento Juvenil Adventista",
+    "title": { "prefix": "Agenda ", "accent": "MJA", "suffix": "" },
     "lead": "Encuentros, congresos y eventos que transforman vidas.",
     "notes": [
-      {
-        "title": "ESTO ES ALGO NUEVO",
-        "body": ""
-      }
+      { "title": "Próximamente", "body": "Pronto vas a encontrar acá todas las fechas, encuentros y actividades del Movimiento Juvenil Adventista para sumarte y participar." }
     ]
   },
   "noticias": {
     "eyebrow": "Noticias",
-    "title": {
-      "prefix": "Noticias del ",
-      "accent": "Cielo",
-      "suffix": ""
-    },
+    "title": { "prefix": "Noticias del ", "accent": "Cielo", "suffix": "" },
     "lead": "Información que edifica, inspira y acompaña tu día a día.",
     "notes": [
-      {
-        "title": "Próximamente",
-        "body": "Pronto vas a encontrar acá noticias, testimonios y reflexiones que renuevan la fe cada día."
-      }
+      { "title": "Próximamente", "body": "Pronto vas a encontrar acá noticias, testimonios y reflexiones que renuevan la fe cada día." }
     ]
   },
   "jesus": {
     "eyebrow": "Una invitación",
-    "title": {
-      "prefix": "¿Querés conocer a ",
-      "accent": "Jesús",
-      "suffix": "?"
-    },
+    "title": { "prefix": "¿Querés conocer a ", "accent": "Jesús", "suffix": "?" },
     "lead": "Él cambió millones de vidas. Hoy también puede cambiar la tuya.",
     "notes": [
-      {
-        "title": "Próximamente",
-        "body": "Estamos preparando un espacio para acompañarte: estudios bíblicos, contacto pastoral y comunidad cerca tuyo."
-      }
+      { "title": "Próximamente", "body": "Estamos preparando un espacio para acompañarte: estudios bíblicos, contacto pastoral y comunidad cerca tuyo." }
     ]
   },
   "programas": {
     "eyebrow": "Grilla semanal",
-    "title": {
-      "prefix": "Nuestros ",
-      "accent": "programas",
-      "suffix": ""
-    },
+    "title": { "prefix": "Nuestros ", "accent": "programas", "suffix": "" },
     "lead": "Música, palabra y compañía las 24 horas del día.",
     "notes": []
-  },
-  "home": {
-    "hero": {
-      "title": {
-        "prefix": "",
-        "accent": "",
-        "suffix": ""
-      },
-      "slides": [
-        {
-          "src": "foto-1779848229039.jpg",
-          "alt": ""
-        }
-      ],
-      "slide_seconds": 5
-    },
-    "ticker": {
-      "items": []
-    },
-    "cards": []
-  },
-  "footer": {
-    "items": [],
-    "socials_label": ""
   }
 }
