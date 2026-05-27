@@ -122,14 +122,26 @@
 
   /* ==================== CONTENT LOAD / APPLY ==================== */
   async function loadContent() {
-    // Always mirror the LIVE published content. We intentionally do NOT load a
-    // stale localStorage draft as the base — the admin must reflect exactly
-    // what the site currently shows. (A leftover draft once wiped the texts.)
+    // Baseline = the LIVE published content.
+    let live = {};
     try {
       const r = await fetch('/content.json?v=' + Date.now(), { cache: 'no-store' });
-      content = r.ok ? await r.json() : {};
-    } catch (e) { content = {}; }
-    localStorage.removeItem(STORAGE_KEY);
+      live = r.ok ? await r.json() : {};
+    } catch (e) { live = {}; }
+
+    // Overlay an unpublished draft if one exists, so work-in-progress survives a
+    // refresh. The draft always derives from live content (never starts blank),
+    // and is cleared after every successful publish — so it can't go stale.
+    const draftStr = localStorage.getItem(STORAGE_KEY);
+    if (draftStr) {
+      try {
+        const draft = JSON.parse(draftStr);
+        content = (draft && typeof draft === 'object' && draft.home) ? draft : live;
+      } catch (e) { content = live; }
+    } else {
+      content = live;
+    }
+
     // Ensure shape
     content.home = content.home || { hero: {}, ticker: { items: [] }, cards: [] };
     content.home.hero = content.home.hero || {};
@@ -144,6 +156,11 @@
       content[k].notes = content[k].notes || [];
     });
   }
+
+  // Session cache of just-uploaded images (filename -> dataURL) so previews show
+  // instantly, before the file finishes deploying to the live site.
+  const sessionImages = {};
+  function resolveSrc(src) { return sessionImages[src] || src; }
 
   // Re-apply draft content to DOM, replacing whatever the public loader put there.
   function applyDraft() {
@@ -175,7 +192,7 @@
         const slidesWrap = $('.hero-slides', home);
         const dotsWrap = $('.hero-dots', home);
         if (slidesWrap) slidesWrap.innerHTML = h.slides.map((s, i) =>
-          '<img class="hero-slide' + (i === 0 ? ' active' : '') + '" src="' + esc(s.src) + '" alt="' + esc(s.alt || '') + '"/>'
+          '<img class="hero-slide' + (i === 0 ? ' active' : '') + '" src="' + esc(resolveSrc(s.src)) + '" alt="' + esc(s.alt || '') + '"/>'
         ).join('');
         if (dotsWrap) dotsWrap.innerHTML = h.slides.map((s, i) =>
           '<button class="' + (i === 0 ? 'active' : '') + '" aria-label="Foto ' + (i + 1) + '" data-slide="' + i + '"></button>'
@@ -341,7 +358,7 @@
     const slidesWrap = $('.hero-slides', home);
     const dotsWrap = $('.hero-dots', home);
     if (slidesWrap) slidesWrap.innerHTML = hero.slides.map((s, i) =>
-      '<img class="hero-slide' + (i === 0 ? ' active' : '') + '" src="' + escHTML(s.src) + '" alt="' + escHTML(s.alt || '') + '"/>'
+      '<img class="hero-slide' + (i === 0 ? ' active' : '') + '" src="' + escHTML(resolveSrc(s.src)) + '" alt="' + escHTML(s.alt || '') + '"/>'
     ).join('');
     if (dotsWrap) dotsWrap.innerHTML = hero.slides.map((s, i) =>
       '<button class="' + (i === 0 ? 'active' : '') + '" aria-label="Foto ' + (i + 1) + '" data-slide="' + i + '"></button>'
@@ -384,7 +401,7 @@
       t.dataset.idx = i;
       t.innerHTML = `
         <span class="asm-grip" title="Arrastrar">⋮⋮</span>
-        <img src="${escHTML(s.src)}" alt=""/>
+        <img src="${escHTML(resolveSrc(s.src))}" alt=""/>
         <button type="button" class="asm-del" title="Quitar foto">✕</button>
       `;
       thumbs.appendChild(t);
@@ -460,6 +477,7 @@
         });
         const data = await res.json().catch(() => ({}));
         if (res.ok && data.ok) {
+          sessionImages[fname] = dataUrl;   // instant preview until deploy serves the file
           hero.slides.push({ src: fname, alt: '' });
           persist();
           renderHeroSlides(home);
@@ -775,6 +793,7 @@
       if (res.ok && data.ok) {
         const h = await sha256(JSON.stringify(content));
         localStorage.setItem(PUBLISHED_KEY, h);
+        localStorage.removeItem(STORAGE_KEY); // draft == live now; avoid staleness
         updatePublishStatus();
         toast('¡Publicado! En ~30 segundos aparece en el sitio.', 'ok');
       } else if (res.status === 503 && data.error === 'github_token_missing') {
