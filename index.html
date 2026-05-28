@@ -847,6 +847,12 @@ img { display: block; max-width: 100%; }
   white-space: nowrap;
 }
 .ticker:hover .ticker-track { animation-play-state: paused; }
+/* Static now/next layout: "Ahora:" stays joined to the current show,
+   with a clear divider before "A continuación". */
+.ticker-track.ticker-static { animation: none; padding-left: 0; gap: 18px; }
+.ti-divider { width: 1px; align-self: stretch; min-height: 16px; background: var(--border); flex-shrink: 0; }
+.ti-now strong { color: var(--text); }
+.ti-up { color: var(--text-soft); }
 
 @keyframes ticker-scroll {
   from { transform: translateX(0); }
@@ -2769,21 +2775,21 @@ window.__initHeroSlides();
     if (!sec) return;
     const nn = nowNext();
     const badge = sec.querySelector('.ticker-badge');
-    if (badge) badge.textContent = 'Ahora';
+    if (badge) badge.textContent = 'Ahora:';
     const intro = sec.querySelector('.ticker-intro');
-    if (intro) intro.textContent = 'Programación en vivo';
+    if (intro) { intro.textContent = ''; intro.style.display = 'none'; }
     const itemsWrap = sec.querySelector('.ticker-items');
     if (itemsWrap) {
       const cur = nn.current, nx = nn.next;
       const curHost = cur.host ? ' — ' + cur.host : '';
-      const block = (dup) =>
-        '<span class="ticker-item"' + (dup ? ' aria-hidden="true"' : '') + '>' +
-          '<strong>' + esc(cur.title) + '</strong>' + esc(curHost) +
-        '</span>' +
-        '<span class="ticker-item"' + (dup ? ' aria-hidden="true"' : '') + '>' +
-          '<span class="ti-time">A continuación · ' + fmtTime(nx.m) + '</span> ' + esc(nx.title) +
-        '</span>';
-      itemsWrap.innerHTML = '<div class="ticker-track">' + block(false) + block(true) + '</div>';
+      itemsWrap.innerHTML =
+        '<div class="ticker-track ticker-static">' +
+          '<span class="ticker-item ti-now"><strong>' + esc(cur.title) + '</strong>' + esc(curHost) + '</span>' +
+          '<span class="ti-divider" aria-hidden="true"></span>' +
+          '<span class="ticker-item ti-up">' +
+            '<span class="ti-time">A continuación · ' + fmtTime(nx.m) + '</span> ' + esc(nx.title) +
+          '</span>' +
+        '</div>';
     }
     const more = sec.querySelector('.ticker-more');
     if (more) { more.textContent = 'Ver programación →'; more.setAttribute('href', '#programas'); }
