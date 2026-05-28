@@ -187,8 +187,8 @@
     "lead": "Información que edifica, inspira y acompaña tu día a día.",
     "notes": [
       {
-        "title": "Próximamente",
-        "body": "Pronto vas a encontrar acá todas las fechas, encuentros y actividades de MJA.&nbsp;"
+        "title": "Pronto vas a encontrar acá todas las fechas, encuentros y actividades de MJA.&amp;nbsp;&nbsp;",
+        "body": "<br>"
       }
     ]
   },
