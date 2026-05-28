@@ -743,6 +743,8 @@
           <button type="button" data-cmd="bold" title="Negrita"><b>N</b></button>
           <button type="button" data-cmd="italic" title="Cursiva"><i>K</i></button>
           <button type="button" data-cmd="underline" title="Subrayado"><u>S</u></button>
+          <button type="button" data-cmd="link" title="Agregar enlace">🔗</button>
+          <button type="button" data-cmd="unlink" title="Quitar enlace">🔗✕</button>
           <span class="rt-sep"></span>
           <button type="button" data-cmd="alignLeft" title="Alinear a la izquierda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg></button>
           <button type="button" data-cmd="alignCenter" title="Centrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M5 18h14"/></svg></button>
@@ -891,6 +893,23 @@
           else if (cmd === 'big') document.execCommand('fontSize', false, '5');
           else if (cmd === 'normal') { document.execCommand('formatBlock', false, 'p'); document.execCommand('fontSize', false, '3'); }
           else if (cmd === 'bullets') document.execCommand('insertUnorderedList');
+          else if (cmd === 'link') {
+            const sel = window.getSelection();
+            if (!sel || sel.isCollapsed) { alert('Primero seleccioná la palabra o frase que querés enlazar.'); }
+            else {
+              let url = prompt('Pegá el enlace (URL):', 'https://');
+              if (url) {
+                url = url.trim();
+                if (!/^(https?:|mailto:|tel:|#|\/)/i.test(url)) url = 'https://' + url;
+                document.execCommand('createLink', false, url);
+                activeEl.querySelectorAll('a').forEach(a => {
+                  a.setAttribute('target', '_blank');
+                  a.setAttribute('rel', 'noopener noreferrer');
+                });
+              }
+            }
+          }
+          else if (cmd === 'unlink') document.execCommand('unlink');
           else if (cmd === 'image') { if (activeEl === body) await insertImageIntoBody(body); }
         } catch (e) {}
         save();

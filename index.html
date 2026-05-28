@@ -1099,6 +1099,7 @@ img { display: block; max-width: 100%; }
 .note-body h3 { font-family: 'Oswald', sans-serif; color: var(--text); font-size: 20px; margin: 16px 0 6px; }
 .note-body ul, .note-body ol { text-align: left; margin: 8px 0; padding-left: 22px; }
 .note-body b, .note-body strong { color: var(--text); }
+.note-body a { color: #1a6dff; text-decoration: underline; }
 /* Keep empty lines (blank paragraphs) from collapsing to zero height. */
 .note-body p:empty, .note-body div:empty { min-height: 1.2em; }
 /* Give every paragraph reliable vertical separation so spacing survives. */
@@ -2616,27 +2617,8 @@ window.__initHeroSlides();
     }
 
     // Ticker
-    if (data.ticker) {
-      const t = data.ticker;
-      const badge = home.querySelector('.ticker-badge');
-      setText(badge, t.badge);
-      const intro = home.querySelector('.ticker-intro');
-      setText(intro, t.intro);
-      const more = home.querySelector('.ticker-more');
-      setText(more, t.more);
-      const itemsWrap = home.querySelector('.ticker-items');
-      if (itemsWrap && Array.isArray(t.items)) {
-        const renderItem = (it, dup) => (
-          '<span class="ticker-item"' + (dup ? ' aria-hidden="true"' : '') + '>' +
-            '<span class="ti-time">' + esc(it.time || '') + '</span> ' +
-            esc(it.text || '') +
-          '</span>'
-        );
-        const visible = t.items.map(it => renderItem(it, false)).join('');
-        const duplicate = t.items.map(it => renderItem(it, true)).join('');
-        itemsWrap.innerHTML = visible + duplicate;
-      }
-    }
+    // The ticker is now driven live by the weekly schedule (renderNowPlaying),
+    // so we no longer populate it from content.json here.
 
     // Cards
     if (Array.isArray(data.cards)) {
@@ -2717,6 +2699,96 @@ window.__initHeroSlides();
     }
   }
 
+  /* ---- Live "Ahora / A continuación" ticker, driven by the weekly schedule
+     shown in PROGRAMAS, using Buenos Aires time (UTC-3). ---- */
+  const isAdminView = (location.pathname === '/admin' || location.pathname === '/admin/' || location.search.includes('admin=1'));
+
+  function baParts() {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+      weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false
+    });
+    const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    let dow = 0, hh = 0, mm = 0;
+    fmt.formatToParts(new Date()).forEach(p => {
+      if (p.type === 'weekday') dow = map[p.value] != null ? map[p.value] : 0;
+      else if (p.type === 'hour') hh = parseInt(p.value, 10) % 24;
+      else if (p.type === 'minute') mm = parseInt(p.value, 10);
+    });
+    return { dow: dow, mins: hh * 60 + mm };
+  }
+
+  function daySchedule(dow) {
+    const UPV = ['Una Palabra de Vida', 'PS. Ariana Juniors'];
+    const MMT = ['Mi Mejor Tiempo con Dios', 'Devocional musical'];
+    const GOT = ['Gotitas de Luz', 'PS. Adrian Juniors'];
+    const MENS = ['El Mensaje de la Palabra de Dios', 'PS. Adrian Juniors'];
+    const MUS = ['Música cristiana sin pausa', 'Las 24 horas en Elet Radio Vida'];
+    const MAN = ['La Mañana de la Radio', 'Música, noticias e invitados'];
+    const RAF = ['Ráfaga Deportiva', ''];
+    const ARG = ['Argentina, tierra con propósito', ''];
+    const REV = ['La Revolución', 'Invasores MJA'];
+    const CEL = ['Celebra los Domingos', 'Alabanza'];
+    const e = (h, m, p) => ({ m: h * 60 + m, title: p[0], host: p[1] });
+    const s = [e(0, 0, UPV), e(3, 5, MMT), e(6, 0, UPV), e(7, 0, GOT)];
+    const weekend = (dow === 0 || dow === 6);
+    if (!weekend) {
+      s.push(e(8, 30, MAN), e(12, 0, MUS), e(13, 0, MENS), e(14, 0, MUS), e(15, 0, UPV));
+      s.push(e(17, 0, dow === 2 || dow === 4 ? ARG : (dow === 5 ? REV : RAF)));
+      s.push(e(18, 0, UPV), e(19, 0, GOT), e(20, 0, MENS));
+      s.push(e(21, 0, dow === 2 || dow === 4 ? MUS : RAF));
+      s.push(e(22, 0, GOT));
+    } else {
+      if (dow === 0) { s.push(e(8, 30, MUS), e(9, 0, CEL), e(11, 0, MUS), e(12, 0, UPV)); }
+      else { s.push(e(8, 30, MUS), e(12, 0, UPV)); }
+      s.push(e(13, 0, MENS), e(14, 0, MUS), e(15, 0, CEL), e(17, 0, RAF));
+      s.push(e(18, 0, UPV), e(19, 0, GOT), e(20, 0, MENS), e(21, 0, RAF), e(22, 0, GOT));
+    }
+    s.sort((a, b) => a.m - b.m);
+    return s;
+  }
+
+  function nowNext() {
+    const t = baParts();
+    const today = daySchedule(t.dow);
+    let i = 0;
+    for (let k = 0; k < today.length; k++) if (today[k].m <= t.mins) i = k;
+    const current = today[i];
+    const next = (i + 1 < today.length) ? today[i + 1] : daySchedule((t.dow + 1) % 7)[0];
+    return { current: current, next: next };
+  }
+
+  function fmtTime(m) {
+    const h = Math.floor(m / 60), mm = m % 60;
+    return String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+  }
+
+  function renderNowPlaying() {
+    if (isAdminView) return;
+    const sec = document.querySelector('section.ticker');
+    if (!sec) return;
+    const nn = nowNext();
+    const badge = sec.querySelector('.ticker-badge');
+    if (badge) badge.textContent = 'Ahora';
+    const intro = sec.querySelector('.ticker-intro');
+    if (intro) intro.textContent = 'Programación en vivo';
+    const itemsWrap = sec.querySelector('.ticker-items');
+    if (itemsWrap) {
+      const cur = nn.current, nx = nn.next;
+      const curHost = cur.host ? ' — ' + cur.host : '';
+      const block = (dup) =>
+        '<span class="ticker-item"' + (dup ? ' aria-hidden="true"' : '') + '>' +
+          '<strong>' + esc(cur.title) + '</strong>' + esc(curHost) +
+        '</span>' +
+        '<span class="ticker-item"' + (dup ? ' aria-hidden="true"' : '') + '>' +
+          '<span class="ti-time">A continuación · ' + fmtTime(nx.m) + '</span> ' + esc(nx.title) +
+        '</span>';
+      itemsWrap.innerHTML = '<div class="ticker-track">' + block(false) + block(true) + '</div>';
+    }
+    const more = sec.querySelector('.ticker-more');
+    if (more) { more.textContent = 'Ver programación →'; more.setAttribute('href', '#programas'); }
+  }
+
   function applyAll(content) {
     if (!content || typeof content !== 'object') return;
     if (content.home) applyHome(content.home);
@@ -2730,6 +2802,9 @@ window.__initHeroSlides();
     .then(r => r.ok ? r.json() : null)
     .then(data => { if (data) applyAll(data); })
     .catch(() => { /* keep defaults */ });
+
+  renderNowPlaying();
+  setInterval(renderNowPlaying, 30000);
 })();
 </script>
 
@@ -2742,10 +2817,10 @@ window.__initHeroSlides();
   if (!isAdmin) return;
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = '/editor.css?v=25';
+  css.href = '/editor.css?v=26';
   document.head.appendChild(css);
   const js = document.createElement('script');
-  js.src = '/editor.js?v=25';
+  js.src = '/editor.js?v=26';
   js.defer = true;
   document.body.appendChild(js);
 })();
