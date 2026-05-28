@@ -199,17 +199,34 @@
     return typeof html === 'string' && /Mso|mso-|<o:p|<xml/i.test(html);
   }
 
-  // Strip Word/Google-Docs junk from pasted HTML: inline styles, classes,
-  // lang/align attributes, <o:p>/<xml> office tags, comments, empty spans/fonts.
+  // Clean pasted HTML into a minimal, safe subset — flattens Word/Docs nesting
+  // so a normal Ctrl+V "just works" (no need to paste-as-plain-text).
   function cleanPastedHTML(html) {
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
-    tmp.querySelectorAll('style, script, meta, link, title, xml, o\\:p').forEach(n => n.remove());
+    tmp.querySelectorAll('style, script, meta, link, title, xml, o\\:p, head').forEach(n => n.remove());
     // Remove HTML comments
     const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_COMMENT, null);
     const comments = [];
     while (walker.nextNode()) comments.push(walker.currentNode);
     comments.forEach(c => c.remove());
+    // Keep only meaningful tags; unwrap the rest (span, font, Word divs…)
+    const ALLOWED = new Set(['B','STRONG','I','EM','U','A','BR','P','UL','OL','LI','H1','H2','H3','H4','IMG','BLOCKQUOTE']);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      tmp.querySelectorAll('*').forEach(el => {
+        if (!ALLOWED.has(el.tagName)) {
+          const parent = el.parentNode;
+          if (el.tagName === 'DIV' && el.textContent.trim() && el.nextSibling) {
+            el.appendChild(document.createElement('br'));
+          }
+          while (el.firstChild) parent.insertBefore(el.firstChild, el);
+          parent.removeChild(el);
+          changed = true;
+        }
+      });
+    }
     // Strip attributes from every element (keep href on links, src/alt on imgs)
     tmp.querySelectorAll('*').forEach(el => {
       const tag = el.tagName.toLowerCase();
@@ -220,6 +237,10 @@
         if (!keep) el.removeAttribute(a.name);
       });
     });
+    tmp.querySelectorAll('p, h1, h2, h3, h4, li').forEach(el => {
+      if (!el.textContent.trim() && !el.querySelector('img')) el.remove();
+    });
+    tmp.querySelectorAll('br + br').forEach(br => br.remove());
     return tmp.innerHTML.replace(/ /g, ' ');
   }
 
