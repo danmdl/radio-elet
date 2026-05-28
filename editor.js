@@ -869,11 +869,12 @@
     }
 
     toolbar.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('mousedown', (e) => e.preventDefault());
+      // Capture the live selection before the click steals focus.
+      btn.addEventListener('mousedown', (e) => { saveSel(); e.preventDefault(); });
       btn.addEventListener('click', async () => {
         const cmd = btn.dataset.cmd;
-        restoreSel();
         activeEl.focus();
+        restoreSel();
         try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
         try {
           if (cmd === 'bold') toggleInlineFormat('fontWeight', '700', 'bold');
