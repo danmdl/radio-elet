@@ -210,6 +210,21 @@ img { display: block; max-width: 100%; }
   gap: clamp(22px, 4.5vw, 56px);
 }
 
+/* Hamburger — shown only on mobile */
+.menu-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  color: var(--green-dark);
+  background: var(--green-soft);
+  border: 1px solid rgba(30,160,62,0.2);
+  flex-shrink: 0;
+}
+.menu-toggle svg { width: 22px; height: 22px; }
+
 .nav a {
   position: relative;
 }
@@ -1572,10 +1587,31 @@ body.is-inner .back-home { display: inline-flex; }
 
 @media (max-width: 768px) {
   .header-inner { padding: 10px 16px; gap: 10px; flex-wrap: wrap; }
+  .logo-link { order: 1; }
   .logo-link img {
     height: 44px !important;
   }
-  .nav { display: none; }
+  .header-actions { order: 2; margin-left: auto; }
+  .menu-toggle { display: flex; order: 3; }
+
+  /* Nav becomes a dropdown panel under the header, toggled by the hamburger */
+  .nav {
+    display: none;
+    order: 4;
+    flex: 1 0 100%;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .nav.open { display: flex; }
+  .nav a { padding: 13px 6px; font-size: 15px; }
+  .nav a::after { display: none; }
+  .nav a:not(:last-child) { border-bottom: 1px solid var(--border); }
+  .nav a:not(:last-child)::before { display: none; }
   .play-pill { padding: 7px 14px 7px 8px; }
   .play-pill .pill-sub { display: none; }
   .volume-control { display: none; }
@@ -1610,6 +1646,10 @@ body.is-inner .back-home { display: inline-flex; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
         Inicio
       </a>
+
+      <button class="menu-toggle" aria-label="Menú" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
 
       <nav class="nav">
         <a href="#historia" data-route-link="historia">Historia</a>
@@ -2103,8 +2143,24 @@ body.is-inner .back-home { display: inline-flex; }
       a.classList.toggle('active', a.dataset.routeLink === route);
     });
     body.classList.toggle('is-inner', route !== 'home');
+    closeMenu();
     // scroll to top on route change
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }
+
+  // Mobile hamburger menu
+  const menuToggle = document.querySelector('.menu-toggle');
+  const navEl = document.querySelector('.nav');
+  function closeMenu() {
+    if (navEl) navEl.classList.remove('open');
+    if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+  }
+  if (menuToggle && navEl) {
+    menuToggle.addEventListener('click', () => {
+      const open = navEl.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    navEl.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
   }
 
   // intercept "go home" links that have empty hash
