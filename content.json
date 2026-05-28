@@ -2,16 +2,16 @@
   "home": {
     "hero": {
       "title": {
-        "prefix": "Radio ",
-        "accent": "que transforma",
-        "suffix": " vidas"
+        "prefix": "Transmitiendo vida",
+        "accent": "Las 24 horas con vos",
+        "suffix": ""
       },
-      "tagline": "Transmitiendo esperanza,\nfe y amor las 24 horas.",
+      "tagline": "",
       "cta": "Escuchá en vivo",
       "live_label": "EN EL AIRE — FM 99.3",
-      "right_hint": "Un mensaje de",
-      "right_accent": "Esperanza",
-      "right_sub": "para tu vida\ntodos los días.",
+      "right_hint": "",
+      "right_accent": "Todos los días, Buenas Noticias",
+      "right_sub": "",
       "slide_seconds": 5,
       "slides": [
         {
