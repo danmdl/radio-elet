@@ -876,17 +876,14 @@
 
     // Clean pasted content (especially from Word / Google Docs) so it doesn't
     // bring inline centering, serif fonts, MsoNormal classes, <o:p> tags, etc.
+    // Paste ALWAYS as plain text — no fonts, no bold, no Word/Docs junk, ever.
+    // The editor formats via the toolbar buttons, not via whatever was copied.
     body.addEventListener('paste', (e) => {
       e.preventDefault();
       const cd = e.clipboardData || window.clipboardData;
-      const html = cd.getData('text/html');
-      const text = cd.getData('text/plain');
+      const text = (cd.getData('text/plain') || '').replace(/ /g, ' ');
       body.focus();
-      if (html) {
-        document.execCommand('insertHTML', false, cleanPastedHTML(html));
-      } else {
-        document.execCommand('insertText', false, text);
-      }
+      document.execCommand('insertText', false, text);
       save();
     });
 
