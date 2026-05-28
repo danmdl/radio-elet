@@ -332,6 +332,7 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
 .rt-body:focus { box-shadow: 0 0 0 2px rgba(30,160,62,0.35); }
 .rt-body:hover { box-shadow: 0 0 0 1px rgba(30,160,62,0.2); }
 .rt-body img { max-width: 100%; height: auto; border-radius: 10px; }
+.rt-body p:empty, .rt-body div:empty { min-height: 1.2em; }
 .rt-body[data-empty="true"]:not(:focus)::before {
   content: attr(data-placeholder);
   color: #aaa;
