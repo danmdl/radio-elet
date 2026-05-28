@@ -348,7 +348,7 @@
         if (slot) {
           const noteBodyHTML = (b) => {
             const s = b == null ? '' : String(b);
-            return /<[a-z][\s\S]*>/i.test(s) ? s : esc(s).replace(/\n/g, '<br>');
+            return /<[a-z][\s\S]*>/i.test(s) ? s : esc(s).replace(/\r\n?|\n/g, '<br>');
           };
           slot.innerHTML = d.notes.length
             ? d.notes.map(n =>
@@ -720,7 +720,7 @@
   function bodyToHTML(body) {
     const b = body == null ? '' : String(body);
     const looksHTML = /<[a-z][\s\S]*>/i.test(b);
-    return looksHTML ? b : escHTML(b).replace(/\n/g, '<br>');
+    return looksHTML ? b : escHTML(b).replace(/\r\n?|\n/g, '<br>');
   }
 
   function decorateNotes(id, main) {

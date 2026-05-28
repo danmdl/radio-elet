@@ -2500,7 +2500,7 @@ window.__initHeroSlides();
   // Note bodies may be rich HTML (new) or plain text with newlines (old).
   function noteBodyHTML(b) {
     const s = b == null ? '' : String(b);
-    return /<[a-z][\s\S]*>/i.test(s) ? s : esc(s).replace(/\n/g, '<br>');
+    return /<[a-z][\s\S]*>/i.test(s) ? s : esc(s).replace(/\r\n?|\n/g, '<br>');
   }
   // Strip anything dangerous from admin-authored HTML before it renders.
   function sanitizeInPlace(el) {
@@ -2684,10 +2684,10 @@ window.__initHeroSlides();
   if (!isAdmin) return;
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = '/editor.css?v=17';
+  css.href = '/editor.css?v=18';
   document.head.appendChild(css);
   const js = document.createElement('script');
-  js.src = '/editor.js?v=17';
+  js.src = '/editor.js?v=18';
   js.defer = true;
   document.body.appendChild(js);
 })();
