@@ -801,6 +801,35 @@
     initSortable(slot, notes, () => { persist(); decorateNotes(id, main); }, '.placeholder-card');
   }
 
+  // Reliable inline format toggle (bold/italic/underline). execCommand is
+  // flaky across mixed-style selections, so we wrap the whole selection in a
+  // styled span ourselves, or remove the style if it's already fully applied.
+  function toggleInlineFormat(styleProp, styleVal, queryName) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+    let isOn = false;
+    try { isOn = document.queryCommandState(queryName); } catch (e) {}
+    if (isOn) {
+      // Removing is handled reliably by execCommand.
+      try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
+      try { document.execCommand(queryName); } catch (e) {}
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    const span = document.createElement('span');
+    span.style[styleProp] = styleVal;
+    try {
+      span.appendChild(range.extractContents());
+      range.insertNode(span);
+      sel.removeAllRanges();
+      const r = document.createRange();
+      r.selectNodeContents(span);
+      sel.addRange(r);
+    } catch (e) {
+      try { document.execCommand(queryName); } catch (e2) {}
+    }
+  }
+
   // Rich-text toolbar wiring for a single note card (applies to title AND body).
   function wireRichToolbar(card, notes, idx, id, main) {
     const body = card.querySelector('.rt-body');
@@ -845,15 +874,11 @@
         const cmd = btn.dataset.cmd;
         restoreSel();
         activeEl.focus();
-        // Bold/italic/underline wrap more reliably across mixed-style text
-        // with styleWithCSS OFF (semantic <b>/<i>/<u> tags); CSS mode only
-        // for alignment/font/size which need inline styles.
-        const cssOff = (cmd === 'bold' || cmd === 'italic' || cmd === 'underline' || cmd === 'bullets');
-        try { document.execCommand('styleWithCSS', false, !cssOff); } catch (e) {}
+        try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
         try {
-          if (cmd === 'bold') document.execCommand('bold');
-          else if (cmd === 'italic') document.execCommand('italic');
-          else if (cmd === 'underline') document.execCommand('underline');
+          if (cmd === 'bold') toggleInlineFormat('fontWeight', '700', 'bold');
+          else if (cmd === 'italic') toggleInlineFormat('fontStyle', 'italic', 'italic');
+          else if (cmd === 'underline') toggleInlineFormat('textDecoration', 'underline', 'underline');
           else if (cmd === 'alignLeft') document.execCommand('justifyLeft');
           else if (cmd === 'alignCenter') document.execCommand('justifyCenter');
           else if (cmd === 'alignRight') document.execCommand('justifyRight');
