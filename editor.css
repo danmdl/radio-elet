@@ -249,7 +249,7 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
 [data-edit] { caret-color: #1ea03e; }
 [data-edit]:focus { caret-color: #1ea03e; }
 
-/* Rich-text toolbar for note bodies (admin only) */
+/* Rich-text toolbar for note bodies (admin only) — sticky so it follows scroll */
 .rt-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -257,10 +257,28 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
   align-items: center;
   margin: 10px 0 8px;
   padding: 6px;
-  background: #f5f8f5;
+  background: #ffffff;
   border: 1px solid #e3e6e3;
   border-radius: 10px;
+  position: sticky;
+  top: 64px;
+  z-index: 40;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
 }
+.rt-toolbar button svg { width: 16px; height: 16px; display: block; }
+.rt-toolbar select {
+  height: 30px;
+  border: 1px solid #e3e6e3;
+  border-radius: 7px;
+  background: white;
+  color: #1a1a1a;
+  font-size: 12.5px;
+  font-family: system-ui, sans-serif;
+  padding: 0 6px;
+  cursor: pointer;
+  max-width: 130px;
+}
+.rt-toolbar select:hover { border-color: #1ea03e; }
 .rt-toolbar button {
   min-width: 32px;
   height: 30px;

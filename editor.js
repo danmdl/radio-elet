@@ -650,11 +650,32 @@
         <div class="rt-toolbar" contenteditable="false">
           <button type="button" data-cmd="bold" title="Negrita"><b>N</b></button>
           <button type="button" data-cmd="italic" title="Cursiva"><i>K</i></button>
+          <button type="button" data-cmd="underline" title="Subrayado"><u>S</u></button>
+          <span class="rt-sep"></span>
+          <button type="button" data-cmd="alignLeft" title="Alinear a la izquierda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg></button>
+          <button type="button" data-cmd="alignCenter" title="Centrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M5 18h14"/></svg></button>
+          <button type="button" data-cmd="alignRight" title="Alinear a la derecha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M10 12h10M7 18h13"/></svg></button>
+          <span class="rt-sep"></span>
+          <select class="rt-font" title="Tipo de letra">
+            <option value="">Fuente…</option>
+            <option value="Lato, sans-serif">Lato (normal)</option>
+            <option value="Oswald, sans-serif">Oswald (títulos)</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="'Times New Roman', serif">Times</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="'Courier New', monospace">Mono</option>
+          </select>
+          <select class="rt-size" title="Tamaño del texto">
+            <option value="">Tamaño…</option>
+            <option value="1">Muy chico</option>
+            <option value="2">Chico</option>
+            <option value="3">Normal</option>
+            <option value="5">Grande</option>
+            <option value="6">Más grande</option>
+            <option value="7">Enorme</option>
+          </select>
           <span class="rt-sep"></span>
           <button type="button" data-cmd="title" title="Subtítulo">Subtítulo</button>
-          <button type="button" data-cmd="big" title="Texto grande">Grande</button>
-          <button type="button" data-cmd="normal" title="Texto normal">Normal</button>
-          <span class="rt-sep"></span>
           <button type="button" data-cmd="bullets" title="Lista con viñetas">• Lista</button>
           <button type="button" data-cmd="image" title="Insertar imagen">🖼️ Imagen</button>
         </div>
@@ -706,10 +727,15 @@
       btn.addEventListener('mousedown', (e) => e.preventDefault());
       btn.addEventListener('click', async () => {
         const cmd = btn.dataset.cmd;
+        restoreSel();
         body.focus();
         try {
           if (cmd === 'bold') document.execCommand('bold');
           else if (cmd === 'italic') document.execCommand('italic');
+          else if (cmd === 'underline') document.execCommand('underline');
+          else if (cmd === 'alignLeft') document.execCommand('justifyLeft');
+          else if (cmd === 'alignCenter') document.execCommand('justifyCenter');
+          else if (cmd === 'alignRight') document.execCommand('justifyRight');
           else if (cmd === 'title') document.execCommand('formatBlock', false, 'h3');
           else if (cmd === 'big') document.execCommand('fontSize', false, '5');
           else if (cmd === 'normal') { document.execCommand('formatBlock', false, 'p'); document.execCommand('fontSize', false, '3'); }
@@ -719,6 +745,40 @@
         save();
       });
     });
+
+    // Font family + size dropdowns (need selection save/restore because focusing
+    // the <select> would otherwise drop the caret/selection in the body).
+    const fontSel = toolbar.querySelector('.rt-font');
+    const sizeSel = toolbar.querySelector('.rt-size');
+    if (fontSel) fontSel.addEventListener('change', () => {
+      restoreSel(); body.focus();
+      if (fontSel.value) document.execCommand('fontName', false, fontSel.value);
+      fontSel.selectedIndex = 0;
+      save();
+    });
+    if (sizeSel) sizeSel.addEventListener('change', () => {
+      restoreSel(); body.focus();
+      if (sizeSel.value) document.execCommand('fontSize', false, sizeSel.value);
+      sizeSel.selectedIndex = 0;
+      save();
+    });
+
+    // Track the last selection inside this body so dropdowns can restore it.
+    let savedRange = null;
+    function saveSel() {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount && body.contains(sel.anchorNode)) {
+        savedRange = sel.getRangeAt(0).cloneRange();
+      }
+    }
+    function restoreSel() {
+      if (savedRange) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedRange);
+      }
+    }
+    ['keyup', 'mouseup'].forEach(ev => body.addEventListener(ev, saveSel));
 
     body.addEventListener('input', save);
     body.addEventListener('blur', save);
