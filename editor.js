@@ -162,6 +162,30 @@
   const sessionImages = {};
   function resolveSrc(src) { return sessionImages[src] || src; }
 
+  // Strip Word/Google-Docs junk from pasted HTML: inline styles, classes,
+  // lang/align attributes, <o:p>/<xml> office tags, comments, empty spans/fonts.
+  function cleanPastedHTML(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    tmp.querySelectorAll('style, script, meta, link, title, xml, o\\:p').forEach(n => n.remove());
+    // Remove HTML comments
+    const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_COMMENT, null);
+    const comments = [];
+    while (walker.nextNode()) comments.push(walker.currentNode);
+    comments.forEach(c => c.remove());
+    // Strip attributes from every element (keep href on links, src/alt on imgs)
+    tmp.querySelectorAll('*').forEach(el => {
+      const tag = el.tagName.toLowerCase();
+      [...el.attributes].forEach(a => {
+        const keep =
+          (tag === 'a' && a.name === 'href') ||
+          (tag === 'img' && (a.name === 'src' || a.name === 'alt'));
+        if (!keep) el.removeAttribute(a.name);
+      });
+    });
+    return tmp.innerHTML.replace(/ /g, ' ');
+  }
+
   // Re-apply draft content to DOM, replacing whatever the public loader put there.
   function applyDraft() {
     if (!content) return;
@@ -729,6 +753,7 @@
         const cmd = btn.dataset.cmd;
         restoreSel();
         body.focus();
+        try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
         try {
           if (cmd === 'bold') document.execCommand('bold');
           else if (cmd === 'italic') document.execCommand('italic');
@@ -752,6 +777,7 @@
     const sizeSel = toolbar.querySelector('.rt-size');
     if (fontSel) fontSel.addEventListener('change', () => {
       restoreSel(); body.focus();
+      try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
       if (fontSel.value) document.execCommand('fontName', false, fontSel.value);
       fontSel.selectedIndex = 0;
       save();
@@ -779,6 +805,22 @@
       }
     }
     ['keyup', 'mouseup'].forEach(ev => body.addEventListener(ev, saveSel));
+
+    // Clean pasted content (especially from Word / Google Docs) so it doesn't
+    // bring inline centering, serif fonts, MsoNormal classes, <o:p> tags, etc.
+    body.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const cd = e.clipboardData || window.clipboardData;
+      const html = cd.getData('text/html');
+      const text = cd.getData('text/plain');
+      body.focus();
+      if (html) {
+        document.execCommand('insertHTML', false, cleanPastedHTML(html));
+      } else {
+        document.execCommand('insertText', false, text);
+      }
+      save();
+    });
 
     body.addEventListener('input', save);
     body.addEventListener('blur', save);
