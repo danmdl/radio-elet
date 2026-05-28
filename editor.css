@@ -301,6 +301,22 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
 .placeholder-card:has(.rt-body) { text-align: left; align-items: stretch; min-height: 0; }
 .placeholder-card:has(.rt-body) h2 { text-align: left; }
 
+/* Editable note title */
+.rt-title {
+  outline: none;
+  border-radius: 8px;
+  transition: box-shadow 0.15s;
+  width: 100%;
+}
+.rt-title:focus { box-shadow: 0 0 0 2px rgba(30,160,62,0.35); }
+.rt-title:hover { box-shadow: 0 0 0 1px rgba(30,160,62,0.2); }
+.rt-title[data-empty="true"]:not(:focus)::before {
+  content: attr(data-placeholder);
+  color: #aaa;
+  font-style: italic;
+  font-weight: 400;
+}
+
 .rt-body {
   outline: none;
   min-height: 60px;

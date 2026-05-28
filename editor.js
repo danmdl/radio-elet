@@ -353,7 +353,7 @@
           slot.innerHTML = d.notes.length
             ? d.notes.map(n =>
                 '<article class="placeholder-card">' +
-                  '<h2>' + esc(n.title || '') + '</h2>' +
+                  '<h2>' + noteBodyHTML(n.title) + '</h2>' +
                   '<div class="note-body">' + noteBodyHTML(n.body) + '</div>' +
                 '</article>'
               ).join('') + '<div style="text-align:center; margin-top:18px;"><a href="#" class="back-link" data-route-link="home">← Volver al inicio</a></div>'
@@ -738,7 +738,7 @@
         <span class="admin-row-controls">
           <button class="admin-btn danger" data-act="del" title="Eliminar nota">× Eliminar</button>
         </span>
-        <h2 data-edit-field="title" contenteditable="plaintext-only" data-edit="1" data-placeholder="Título de la nota">${escHTML(n.title || '')}</h2>
+        <h2 class="rt-title" data-edit-field="title" data-rich="1" contenteditable="true" data-edit="1" data-placeholder="Título de la nota">${bodyToHTML(n.title)}</h2>
         <div class="rt-toolbar" contenteditable="false">
           <button type="button" data-cmd="bold" title="Negrita"><b>N</b></button>
           <button type="button" data-cmd="italic" title="Cursiva"><i>K</i></button>
@@ -801,26 +801,50 @@
     initSortable(slot, notes, () => { persist(); decorateNotes(id, main); }, '.placeholder-card');
   }
 
-  // Rich-text toolbar wiring for a single note card.
+  // Rich-text toolbar wiring for a single note card (applies to title AND body).
   function wireRichToolbar(card, notes, idx, id, main) {
     const body = card.querySelector('.rt-body');
+    const title = card.querySelector('.rt-title');
     const toolbar = card.querySelector('.rt-toolbar');
     if (!body || !toolbar) return;
 
+    const fields = [title, body].filter(Boolean);
+    let activeEl = body;
+    let savedRange = null;
+
     const refreshRich = () => {
-      const hasContent = body.textContent.trim() !== '' || body.querySelector('img');
-      body.dataset.empty = hasContent ? 'false' : 'true';
+      const has = body.textContent.trim() !== '' || body.querySelector('img');
+      body.dataset.empty = has ? 'false' : 'true';
+      if (title) title.dataset.empty = title.textContent.trim() ? 'false' : 'true';
     };
     refreshRich();
-    const save = () => { notes[idx].body = body.innerHTML; refreshRich(); persist(); };
+    const save = () => {
+      if (title) notes[idx].title = title.innerHTML;
+      notes[idx].body = body.innerHTML;
+      refreshRich();
+      persist();
+    };
 
-    // Keep focus in the body when clicking toolbar buttons.
+    function saveSel() {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount && activeEl.contains(sel.anchorNode)) {
+        savedRange = sel.getRangeAt(0).cloneRange();
+      }
+    }
+    function restoreSel() {
+      if (savedRange) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedRange);
+      }
+    }
+
     toolbar.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('mousedown', (e) => e.preventDefault());
       btn.addEventListener('click', async () => {
         const cmd = btn.dataset.cmd;
         restoreSel();
-        body.focus();
+        activeEl.focus();
         try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
         try {
           if (cmd === 'bold') document.execCommand('bold');
@@ -833,62 +857,47 @@
           else if (cmd === 'big') document.execCommand('fontSize', false, '5');
           else if (cmd === 'normal') { document.execCommand('formatBlock', false, 'p'); document.execCommand('fontSize', false, '3'); }
           else if (cmd === 'bullets') document.execCommand('insertUnorderedList');
-          else if (cmd === 'image') { await insertImageIntoBody(body); }
-        } catch (e) { /* ignore */ }
+          else if (cmd === 'image') { if (activeEl === body) await insertImageIntoBody(body); }
+        } catch (e) {}
         save();
       });
     });
 
-    // Font family + size dropdowns (need selection save/restore because focusing
-    // the <select> would otherwise drop the caret/selection in the body).
     const fontSel = toolbar.querySelector('.rt-font');
     const sizeSel = toolbar.querySelector('.rt-size');
     if (fontSel) fontSel.addEventListener('change', () => {
-      restoreSel(); body.focus();
+      restoreSel(); activeEl.focus();
       try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
       if (fontSel.value) document.execCommand('fontName', false, fontSel.value);
       fontSel.selectedIndex = 0;
       save();
     });
     if (sizeSel) sizeSel.addEventListener('change', () => {
-      restoreSel(); body.focus();
+      restoreSel(); activeEl.focus();
+      try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
       if (sizeSel.value) document.execCommand('fontSize', false, sizeSel.value);
       sizeSel.selectedIndex = 0;
       save();
     });
 
-    // Track the last selection inside this body so dropdowns can restore it.
-    let savedRange = null;
-    function saveSel() {
-      const sel = window.getSelection();
-      if (sel && sel.rangeCount && body.contains(sel.anchorNode)) {
-        savedRange = sel.getRangeAt(0).cloneRange();
-      }
-    }
-    function restoreSel() {
-      if (savedRange) {
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(savedRange);
-      }
-    }
-    ['keyup', 'mouseup'].forEach(ev => body.addEventListener(ev, saveSel));
-
-    // Clean pasted content (especially from Word / Google Docs) so it doesn't
-    // bring inline centering, serif fonts, MsoNormal classes, <o:p> tags, etc.
-    // Paste ALWAYS as plain text — no fonts, no bold, no Word/Docs junk, ever.
-    // The editor formats via the toolbar buttons, not via whatever was copied.
-    body.addEventListener('paste', (e) => {
-      e.preventDefault();
-      const cd = e.clipboardData || window.clipboardData;
-      const text = (cd.getData('text/plain') || '').replace(/ /g, ' ');
-      body.focus();
-      document.execCommand('insertText', false, text);
-      save();
+    fields.forEach(el => {
+      el.addEventListener('focus', () => { activeEl = el; });
+      ['keyup', 'mouseup'].forEach(ev => el.addEventListener(ev, () => { activeEl = el; saveSel(); }));
+      el.addEventListener('input', save);
+      el.addEventListener('blur', save);
+      el.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const cd = e.clipboardData || window.clipboardData;
+        let text = (cd.getData('text/plain') || '').replace(/\u00a0/g, ' ');
+        if (el === title) text = text.replace(/[\r\n]+/g, ' ');
+        el.focus();
+        document.execCommand('insertText', false, text);
+        save();
+      });
+      if (el === title) el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); body.focus(); }
+      });
     });
-
-    body.addEventListener('input', save);
-    body.addEventListener('blur', save);
   }
 
   // Pick an image, resize to base64, and insert it inline at the cursor.
