@@ -297,11 +297,21 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
 .rt-toolbar button:active { transform: translateY(1px); }
 .rt-toolbar .rt-sep { width: 1px; height: 20px; background: #d8ddd8; margin: 0 3px; }
 
+/* Editor note cards: left-aligned article layout */
+.placeholder-card:has(.rt-body) { text-align: left; align-items: stretch; min-height: 0; }
+.placeholder-card:has(.rt-body) h2 { text-align: left; }
+
 .rt-body {
   outline: none;
   min-height: 60px;
   border-radius: 8px;
   transition: box-shadow 0.15s;
+  text-align: left;
+  width: 100%;
+  align-self: stretch;
+  font-family: 'Lato', sans-serif;
+  line-height: 1.6;
+  color: #444;
 }
 .rt-body:focus { box-shadow: 0 0 0 2px rgba(30,160,62,0.35); }
 .rt-body:hover { box-shadow: 0 0 0 1px rgba(30,160,62,0.2); }
