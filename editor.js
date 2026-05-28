@@ -766,6 +766,10 @@
             <option value="6">Más grande</option>
             <option value="7">Enorme</option>
           </select>
+          <label class="rt-color" title="Color del texto">
+            <span class="rt-color-swatch"></span>
+            <input type="color" class="rt-color-input" value="#1ea03e">
+          </label>
           <span class="rt-sep"></span>
           <button type="button" data-cmd="title" title="Subtítulo">Subtítulo</button>
           <button type="button" data-cmd="bullets" title="Lista con viñetas">• Lista</button>
@@ -909,6 +913,24 @@
       sizeSel.selectedIndex = 0;
       save();
     });
+
+    const colorLabel = toolbar.querySelector('.rt-color');
+    const colorInput = toolbar.querySelector('.rt-color-input');
+    const colorSwatch = toolbar.querySelector('.rt-color-swatch');
+    if (colorLabel && colorInput) {
+      // Keep the live selection before the native picker steals focus.
+      colorLabel.addEventListener('mousedown', () => saveSel());
+      const applyColor = () => {
+        if (colorSwatch) colorSwatch.style.background = colorInput.value;
+        activeEl.focus(); restoreSel();
+        try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
+        document.execCommand('foreColor', false, colorInput.value);
+        save();
+      };
+      colorInput.addEventListener('input', applyColor);
+      colorInput.addEventListener('change', applyColor);
+      if (colorSwatch) colorSwatch.style.background = colorInput.value;
+    }
 
     fields.forEach(el => {
       el.addEventListener('focus', () => { activeEl = el; });
