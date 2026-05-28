@@ -847,9 +847,7 @@ img { display: block; max-width: 100%; }
   white-space: nowrap;
 }
 .ticker:hover .ticker-track { animation-play-state: paused; }
-/* Static now/next layout: "Ahora:" stays joined to the current show,
-   with a clear divider before "A continuación". */
-.ticker-track.ticker-static { animation: none; padding-left: 0; gap: 18px; }
+/* Now/next ticker: clear divider between the current show and "A continuación". */
 .ti-divider { width: 1px; align-self: stretch; min-height: 16px; background: var(--border); flex-shrink: 0; }
 .ti-now strong { color: var(--text); }
 .ti-up { color: var(--text-soft); }
@@ -2782,14 +2780,13 @@ window.__initHeroSlides();
     if (itemsWrap) {
       const cur = nn.current, nx = nn.next;
       const curHost = cur.host ? ' — ' + cur.host : '';
-      itemsWrap.innerHTML =
-        '<div class="ticker-track ticker-static">' +
-          '<span class="ticker-item ti-now"><strong>' + esc(cur.title) + '</strong>' + esc(curHost) + '</span>' +
-          '<span class="ti-divider" aria-hidden="true"></span>' +
-          '<span class="ticker-item ti-up">' +
-            '<span class="ti-time">A continuación · ' + fmtTime(nx.m) + '</span> ' + esc(nx.title) +
-          '</span>' +
-        '</div>';
+      const block = (dup) =>
+        '<span class="ticker-item ti-now"' + (dup ? ' aria-hidden="true"' : '') + '><strong>' + esc(cur.title) + '</strong>' + esc(curHost) + '</span>' +
+        '<span class="ti-divider" aria-hidden="true"></span>' +
+        '<span class="ticker-item ti-up"' + (dup ? ' aria-hidden="true"' : '') + '>' +
+          '<span class="ti-time">A continuación · ' + fmtTime(nx.m) + '</span> ' + esc(nx.title) +
+        '</span>';
+      itemsWrap.innerHTML = '<div class="ticker-track">' + block(false) + block(true) + '</div>';
     }
     const more = sec.querySelector('.ticker-more');
     if (more) { more.textContent = 'Ver programación →'; more.setAttribute('href', '#programas'); }
