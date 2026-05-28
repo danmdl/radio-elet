@@ -6,6 +6,7 @@
 
   const PASS_HASH = '5312483a9608c7f943cde4dfd7b99ce2f89f39f5da5a5178faf880b2fea02dfe';
   const STORAGE_KEY = 'elet_admin_content_draft';
+  const BASE_KEY = 'elet_admin_draft_base';
   const PUBLISHED_KEY = 'elet_admin_last_published_hash';
   const AUTH_KEY = 'elet_admin_authed';
 
@@ -129,17 +130,26 @@
       live = r.ok ? await r.json() : {};
     } catch (e) { live = {}; }
 
-    // Overlay an unpublished draft if one exists, so work-in-progress survives a
-    // refresh. The draft always derives from live content (never starts blank),
-    // and is cleared after every successful publish — so it can't go stale.
+    // A draft is only valid if it was based on the CURRENT live version. We store
+    // the hash of the live content the draft started from; if live has changed
+    // since (a publish happened), the draft is stale and we discard it. This kills
+    // the "old version flashes over the new one" bug from leftover localStorage.
+    const liveHash = await sha256(JSON.stringify(live));
     const draftStr = localStorage.getItem(STORAGE_KEY);
-    if (draftStr) {
+    const draftBase = localStorage.getItem(BASE_KEY);
+    let usedDraft = false;
+    if (draftStr && draftBase === liveHash) {
       try {
         const draft = JSON.parse(draftStr);
-        content = (draft && typeof draft === 'object' && draft.home) ? draft : live;
+        if (draft && typeof draft === 'object' && draft.home) { content = draft; usedDraft = true; }
+        else content = live;
       } catch (e) { content = live; }
     } else {
       content = live;
+    }
+    if (!usedDraft) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.setItem(BASE_KEY, liveHash);
     }
 
     // Ensure shape
@@ -1051,7 +1061,8 @@
       if (res.ok && data.ok) {
         const h = await sha256(JSON.stringify(content));
         localStorage.setItem(PUBLISHED_KEY, h);
-        localStorage.removeItem(STORAGE_KEY); // draft == live now; avoid staleness
+        localStorage.removeItem(STORAGE_KEY);  // draft == live now
+        localStorage.setItem(BASE_KEY, h);     // new baseline = what we just published
         updatePublishStatus();
         toast('¡Publicado! En ~30 segundos aparece en el sitio.', 'ok');
       } else if (res.status === 503 && data.error === 'github_token_missing') {
