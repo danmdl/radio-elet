@@ -188,6 +188,11 @@
         if (kept) el.setAttribute('style', kept); else el.removeAttribute('style');
       }
     });
+    // Drop empty blocks and collapse runs of <br> (Word leaves lots of these)
+    tmp.querySelectorAll('p, div, span, h1, h2, h3, h4').forEach(el => {
+      if (!el.textContent.trim() && !el.querySelector('img')) el.remove();
+    });
+    tmp.querySelectorAll('br + br').forEach(br => br.remove());
     return tmp.innerHTML;
   }
   function hasWordJunk(html) {
