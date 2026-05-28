@@ -154,6 +154,10 @@
       content[k] = content[k] || {};
       content[k].title = content[k].title || { prefix: '', accent: '', suffix: '' };
       content[k].notes = content[k].notes || [];
+      // Scrub any leftover Word/Docs junk from note bodies (draft or live).
+      content[k].notes.forEach(n => {
+        if (hasWordJunk(n.body)) n.body = deWordify(n.body);
+      });
     });
   }
 
@@ -161,6 +165,34 @@
   // instantly, before the file finishes deploying to the live site.
   const sessionImages = {};
   function resolveSrc(src) { return sessionImages[src] || src; }
+
+  // Surgically remove Word/Docs junk (Mso classes, mso-* / font / text-align /
+  // margin inline styles, <o:p> tags, lang attrs) while keeping clean content.
+  function deWordify(html) {
+    if (!html || html.indexOf('<') < 0) return html;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    tmp.querySelectorAll('o\\:p, xml, style, script, meta, link, title').forEach(n => n.remove());
+    tmp.querySelectorAll('*').forEach(el => {
+      if (el.className && /\bMso/i.test(el.className)) el.removeAttribute('class');
+      el.removeAttribute('lang');
+      const st = el.getAttribute('style');
+      if (st) {
+        const kept = st.split(';').map(s => s.trim()).filter(s => {
+          if (!s) return false;
+          const prop = s.split(':')[0].trim().toLowerCase();
+          return !(prop.startsWith('mso-') || prop === 'font-family' || prop === 'font-size' ||
+                   prop === 'line-height' || prop === 'margin' || prop === 'text-align' ||
+                   prop === 'color');
+        }).join('; ');
+        if (kept) el.setAttribute('style', kept); else el.removeAttribute('style');
+      }
+    });
+    return tmp.innerHTML;
+  }
+  function hasWordJunk(html) {
+    return typeof html === 'string' && /Mso|mso-|<o:p|<xml/i.test(html);
+  }
 
   // Strip Word/Google-Docs junk from pasted HTML: inline styles, classes,
   // lang/align attributes, <o:p>/<xml> office tags, comments, empty spans/fonts.
