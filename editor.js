@@ -845,7 +845,11 @@
         const cmd = btn.dataset.cmd;
         restoreSel();
         activeEl.focus();
-        try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
+        // Bold/italic/underline wrap more reliably across mixed-style text
+        // with styleWithCSS OFF (semantic <b>/<i>/<u> tags); CSS mode only
+        // for alignment/font/size which need inline styles.
+        const cssOff = (cmd === 'bold' || cmd === 'italic' || cmd === 'underline' || cmd === 'bullets');
+        try { document.execCommand('styleWithCSS', false, !cssOff); } catch (e) {}
         try {
           if (cmd === 'bold') document.execCommand('bold');
           else if (cmd === 'italic') document.execCommand('italic');
