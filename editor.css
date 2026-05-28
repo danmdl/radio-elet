@@ -333,6 +333,8 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
 .rt-body:hover { box-shadow: 0 0 0 1px rgba(30,160,62,0.2); }
 .rt-body img { max-width: 100%; height: auto; border-radius: 10px; }
 .rt-body p:empty, .rt-body div:empty { min-height: 1.2em; }
+.rt-body p, .rt-body div { margin: 0 0 0.9em; }
+.rt-body p:last-child, .rt-body div:last-child { margin-bottom: 0; }
 .rt-body[data-empty="true"]:not(:focus)::before {
   content: attr(data-placeholder);
   color: #aaa;

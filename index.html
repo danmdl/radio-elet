@@ -1101,6 +1101,9 @@ img { display: block; max-width: 100%; }
 .note-body b, .note-body strong { color: var(--text); }
 /* Keep empty lines (blank paragraphs) from collapsing to zero height. */
 .note-body p:empty, .note-body div:empty { min-height: 1.2em; }
+/* Give every paragraph reliable vertical separation so spacing survives. */
+.note-body p, .note-body div { margin: 0 0 0.9em; }
+.note-body p:last-child, .note-body div:last-child { margin-bottom: 0; }
 
 .placeholder-card p {
   color: var(--text-soft);
@@ -2742,10 +2745,10 @@ window.__initHeroSlides();
   if (!isAdmin) return;
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = '/editor.css?v=23';
+  css.href = '/editor.css?v=24';
   document.head.appendChild(css);
   const js = document.createElement('script');
-  js.src = '/editor.js?v=23';
+  js.src = '/editor.js?v=24';
   js.defer = true;
   document.body.appendChild(js);
 })();
