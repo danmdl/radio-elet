@@ -12,7 +12,7 @@
       "right_hint": "",
       "right_accent": "Todos los días, Buenas Noticias",
       "right_sub": "",
-      "slide_seconds": 5,
+      "slide_seconds": 4,
       "slides": [
         {
           "src": "hosts.png",
@@ -24,6 +24,30 @@
         },
         {
           "src": "foto-1780335878593-0.jpg",
+          "alt": ""
+        },
+        {
+          "src": "foto-1780498010873-0.jpg",
+          "alt": ""
+        },
+        {
+          "src": "foto-1780498029465-0.jpg",
+          "alt": ""
+        },
+        {
+          "src": "foto-1780498043596-0.jpg",
+          "alt": ""
+        },
+        {
+          "src": "foto-1780498062364-0.jpg",
+          "alt": ""
+        },
+        {
+          "src": "foto-1780498082818-0.jpg",
+          "alt": ""
+        },
+        {
+          "src": "foto-1780498110941-0.jpg",
           "alt": ""
         }
       ]
