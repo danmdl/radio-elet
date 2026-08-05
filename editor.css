@@ -361,6 +361,34 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
 .rt-body:hover { box-shadow: 0 0 0 1px rgba(30,160,62,0.2); }
 .rt-body img { max-width: 100%; height: auto; border-radius: 10px; }
 .rt-body a { color: #1a6dff; text-decoration: underline; }
+.rt-body .audio-block,
+.note-body .audio-block {
+  display: block;
+  background: linear-gradient(180deg, #f4faf6 0%, #eaf6ee 100%);
+  border: 1px solid rgba(30,160,62,0.25);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  box-shadow: 0 2px 10px rgba(30,160,62,0.08);
+}
+.rt-body .audio-title,
+.note-body .audio-title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: #1a3a23;
+  margin-bottom: 8px;
+  outline: none;
+  letter-spacing: 0.02em;
+}
+.rt-body .audio-title[data-placeholder]:empty::before,
+.note-body .audio-title[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: #9aa9a0;
+  font-style: italic;
+}
+.rt-body .audio-block audio,
+.note-body .audio-block audio { width: 100%; display: block; }
 .rt-body p:empty, .rt-body div:empty { min-height: 1.2em; }
 .rt-body p, .rt-body div { margin: 0 0 0.9em; }
 .rt-body p:last-child, .rt-body div:last-child { margin-bottom: 0; }
@@ -479,3 +507,104 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
   margin-top: 8px;
 }
 .admin-slide-manager .asm-hint strong { color: #167f30; }
+
+/* ============ Schedule editor (Programas) ============ */
+.schedule-admin {
+  margin: 20px auto 28px;
+  max-width: 1100px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid rgba(30,160,62,0.2);
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+}
+.schedule-admin .sa-head h3 {
+  margin: 0 0 6px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  color: #1a3a23;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.schedule-admin .sa-hint {
+  margin: 0 0 16px;
+  color: #667;
+  font-size: 13px;
+}
+.schedule-admin .sa-list { display: flex; flex-direction: column; gap: 12px; }
+
+.sa-item {
+  display: grid;
+  grid-template-columns: auto auto 1fr 1fr auto auto auto;
+  gap: 10px 12px;
+  align-items: center;
+  padding: 12px;
+  background: #f7faf7;
+  border: 1px solid rgba(30,160,62,0.15);
+  border-radius: 10px;
+}
+@media (max-width: 900px) {
+  .sa-item { grid-template-columns: 1fr 1fr; }
+  .sa-item .sa-title, .sa-item .sa-eyebrow { grid-column: 1 / -1; }
+  .sa-item .sa-days { grid-column: 1 / -1; }
+  .sa-item .sa-del { grid-column: 1 / -1; justify-self: end; }
+}
+
+.sa-days { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.sa-day {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #eee;
+  color: #555;
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+}
+.sa-day input { position: absolute; opacity: 0; pointer-events: none; }
+.sa-day:has(input:checked) { background: #1ea03e; color: #fff; }
+.sa-day:hover { background: #dcdcdc; }
+.sa-day:has(input:checked):hover { background: #167f30; }
+
+.sa-time { display: inline-flex; align-items: center; gap: 6px; }
+.sa-arrow { color: #888; }
+.sa-item input[type="time"],
+.sa-item input[type="text"],
+.sa-item select {
+  padding: 6px 8px;
+  border: 1px solid #cfd6cf;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fff;
+  min-width: 0;
+}
+.sa-item input[type="time"] { max-width: 100px; }
+.sa-item .sa-title { font-weight: 600; }
+.sa-item .sa-eyebrow { font-size: 12px; color: #667; }
+
+.sa-del {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.schedule-admin .sa-add {
+  margin-top: 14px;
+  padding: 10px 18px;
+  background: #1ea03e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.schedule-admin .sa-add:hover { background: #167f30; }

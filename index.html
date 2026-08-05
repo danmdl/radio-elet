@@ -1107,6 +1107,24 @@ img { display: block; max-width: 100%; }
 .note-body ul, .note-body ol { text-align: left; margin: 8px 0; padding-left: 22px; }
 .note-body b, .note-body strong { color: var(--text); }
 .note-body a { color: #1a6dff; text-decoration: underline; }
+.note-body .audio-block {
+  display: block;
+  background: linear-gradient(180deg, #f4faf6 0%, #eaf6ee 100%);
+  border: 1px solid rgba(30,160,62,0.25);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 16px 0;
+  box-shadow: 0 2px 10px rgba(30,160,62,0.08);
+}
+.note-body .audio-title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+.note-body .audio-block audio { width: 100%; display: block; }
 /* Keep empty lines (blank paragraphs) from collapsing to zero height. */
 .note-body p:empty, .note-body div:empty { min-height: 1.2em; }
 /* Give every paragraph reliable vertical separation so spacing survives. */
@@ -2310,6 +2328,7 @@ body.is-inner .back-home { display: inline-flex; }
   window.addEventListener('hashchange', () => refresh(true));
   window.addEventListener('resize', () => refresh(false));
   setInterval(() => refresh(false), 60 * 1000);
+  window.__updateNowLine = () => refresh(false);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => refresh(true));
@@ -2721,7 +2740,50 @@ window.__initHeroSlides();
     return { dow: dow, mins: hh * 60 + mm };
   }
 
+  // Populated when content.json loads; drives the schedule grid and the ticker.
+  let loadedSchedule = null;
+  let loadedFiller = null;
+
+  function parseHM(t) {
+    const parts = String(t || '0:0').split(':');
+    return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
+  }
+
+  function buildDayFromSchedule(dow, entries, filler) {
+    const fill = {
+      title: (filler && filler.title) || 'Música cristiana sin pausa',
+      host:  (filler && filler.host)  || ''
+    };
+    const list = entries
+      .filter(e => Array.isArray(e.days) && e.days.includes(dow))
+      .map(e => {
+        const s = parseHM(e.start);
+        let en = parseHM(e.end);
+        if (en <= s) en += 1440;
+        return { m: s, end: en, title: e.title, host: e.host || '' };
+      })
+      .sort((a, b) => a.m - b.m);
+    if (!list.length) return [{ m: 0, title: fill.title, host: fill.host }];
+    const out = [];
+    let cursor = 0;
+    for (const e of list) {
+      if (e.m > cursor) out.push({ m: cursor, title: fill.title, host: fill.host });
+      out.push({ m: e.m, title: e.title, host: e.host });
+      cursor = e.end >= 1440 ? 1440 : e.end;
+    }
+    if (cursor < 1440) out.push({ m: cursor, title: fill.title, host: fill.host });
+    return out;
+  }
+
   function daySchedule(dow) {
+    if (loadedSchedule && loadedSchedule.length) {
+      return buildDayFromSchedule(dow, loadedSchedule, loadedFiller);
+    }
+    return legacyDaySchedule(dow);
+  }
+
+  // Fallback used until content.json loads (or if it has no schedule).
+  function legacyDaySchedule(dow) {
     const UPV = ['Una Palabra de Vida', 'PS. Ariana Juniors'];
     const MMT = ['Mi Mejor Tiempo con Dios', 'Devocional musical'];
     const GOT = ['Gotitas de Luz', 'PS. Adrian Juniors'];
@@ -2791,6 +2853,140 @@ window.__initHeroSlides();
     if (more) { more.textContent = 'Ver programación →'; more.setAttribute('href', '#programas'); }
   }
 
+  /* ---- Weekly schedule grid renderer (PROGRAMAS page) ----
+     Rebuilds <div class="schedule"> from loadedSchedule. Falls back to
+     leaving the hardcoded grid untouched if no data. */
+  const CAT_ICONS = { morning:
+    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 7a5 5 0 1 0 5 5 5 5 0 0 0-5-5m0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3m0-13a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0V3a1 1 0 0 0-1-1m0 17a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1M5.6 6.34a1 1 0 0 0-1.41-1.41 1 1 0 0 0 0 1.41l1.41 1.41a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41M17.66 18a1 1 0 0 0-1.41 1.41l1.41 1.41a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41M22 11h-2a1 1 0 0 0 0 2h2a1 1 0 0 0 0-2M3 12a1 1 0 0 0-1-1H0a1 1 0 0 0 0 2h2a1 1 0 0 0 1-1m15.95-6.34a1 1 0 0 0-1.41 0L16.13 7.07a1 1 0 0 0 1.41 1.41l1.41-1.41a1 1 0 0 0 0-1.41M5.6 17.66l-1.41 1.41a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0L7.01 19.07a1 1 0 0 0-1.41-1.41z"/></svg>',
+    afternoon:
+    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41M1 10.5h3v2H1v-2M11 .55h2V3.5h-2V.55m8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408 1.79-1.79M17.24 18.16l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4M20 10.5h3v2h-3v-2m-8-5a6 6 0 0 1 6 6 6 6 0 0 1-6 6 6 6 0 0 1-6-6 6 6 0 0 1 6-6m-1 18.45h2V20.5h-2v2.95M3.55 18.54l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/></svg>',
+    night:
+    '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.75 4.09l-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85a8.97 8.97 0 0 1-7.31 3.74 8.99 8.99 0 0 1-9-9 9.13 9.13 0 0 1 3.69-7.26c.74-.55 1.94.39 1.83 1.26-.41 4.13 2.46 7.94 6.81 8.81.32.06.94.13 1.31.16.26.03.46.45.48.44z"/></svg>'
+  };
+
+  function fmtHM(mins) {
+    mins = ((mins % 1440) + 1440) % 1440;
+    return Math.floor(mins / 60) + ':' + String(mins % 60).padStart(2, '0');
+  }
+
+  // JS getDay: 0=Sun..6=Sat. Visual columns: Lun=col1..Sáb=col6, Dom=col7.
+  function dowToCol(dow) { return dow === 0 ? 7 : dow; }
+
+  function renderSchedule() {
+    if (!loadedSchedule || !loadedSchedule.length) return;
+    const grid = document.querySelector('#route-programas .schedule');
+    if (!grid) return;
+
+    const entries = loadedSchedule.map(e => {
+      const s = parseHM(e.start);
+      let en = parseHM(e.end);
+      if (en <= s) en += 1440;
+      const days = (Array.isArray(e.days) ? e.days : []).filter(d => d >= 0 && d <= 6);
+      return { start: s, end: en, days: days, title: e.title || '', host: e.host || '', category: e.category || 'talk', eyebrow: e.eyebrow || '' };
+    }).filter(e => e.days.length && e.title);
+
+    // Row boundaries = unique entry starts + hourly anchors (0..23) + 1440 sentinel.
+    const timeSet = new Set([0]);
+    for (let h = 3; h <= 23; h++) timeSet.add(h * 60);
+    entries.forEach(e => timeSet.add(e.start));
+    const rowTimes = [...timeSet].sort((a, b) => a - b);
+    const boundaries = [...rowTimes, 1440];
+    const rowIndex = t => rowTimes.indexOf(t);
+    const endRowOf = end => {
+      for (let i = 0; i < boundaries.length; i++) if (boundaries[i] >= end) return i;
+      return boundaries.length - 1;
+    };
+
+    // Coverage matrix: covered[rowIdx][colIdx 1..7] = true when a row-span above claims it.
+    const covered = rowTimes.map(() => [false, false, false, false, false, false, false, false]);
+    // Entries grouped by (rowIdx, contiguous-col-run) → rendered cells.
+    const cellsByRow = rowTimes.map(() => []);
+
+    entries.forEach(entry => {
+      const sRow = rowIndex(entry.start);
+      if (sRow < 0) return;
+      const eRow = endRowOf(entry.end);
+      const spanRows = Math.max(1, eRow - sRow);
+      // Mark cover for rows below the starting row.
+      const cols = entry.days.map(dowToCol).sort((a, b) => a - b);
+      for (let r = sRow + 1; r < sRow + spanRows; r++) {
+        cols.forEach(c => { if (covered[r]) covered[r][c] = true; });
+      }
+      // Split cols into contiguous runs; each becomes a separate cell.
+      let run = [cols[0]];
+      const runs = [];
+      for (let i = 1; i < cols.length; i++) {
+        if (cols[i] === cols[i - 1] + 1) run.push(cols[i]);
+        else { runs.push(run); run = [cols[i]]; }
+      }
+      runs.push(run);
+      runs.forEach(r => {
+        cellsByRow[sRow].push({
+          startCol: r[0], colSpan: r.length, rowSpan: spanRows,
+          title: entry.title, host: entry.host, category: entry.category, eyebrow: entry.eyebrow
+        });
+      });
+    });
+
+    // Build HTML.
+    const esc2 = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const parts = [];
+    parts.push('<div class="sch-corner" role="rowheader"><span class="sc-hint">Hora</span></div>');
+    parts.push('<div class="sch-day">Lun</div><div class="sch-day">Mar</div><div class="sch-day">Mié</div><div class="sch-day">Jue</div><div class="sch-day">Vie</div><div class="sch-day sch-day-weekend">Sáb</div><div class="sch-day sch-day-weekend">Dom</div>');
+
+    // Bands with fixed ranges. Emit at the FIRST row that hits each cutoff.
+    const bands = [
+      { at: 3 * 60,  cls: 'sch-band-morning',   label: 'Mañana', range: '03 — 13 h', icon: CAT_ICONS.morning },
+      { at: 14 * 60, cls: 'sch-band-afternoon', label: 'Tarde',  range: '14 — 19 h', icon: CAT_ICONS.afternoon },
+      { at: 19 * 60, cls: 'sch-band-night',     label: 'Noche',  range: '19 — 03 h', icon: CAT_ICONS.night }
+    ];
+    let bandIdx = 0;
+
+    rowTimes.forEach((t, rIdx) => {
+      // Insert any band whose cutoff is <= t and not yet inserted.
+      while (bandIdx < bands.length && bands[bandIdx].at <= t) {
+        const b = bands[bandIdx];
+        parts.push('<div class="sch-band ' + b.cls + '">' + b.icon + '<span>' + b.label + '</span><span class="sb-range">' + b.range + '</span></div>');
+        bandIdx++;
+      }
+      parts.push('<div class="sch-time">' + fmtHM(t) + '</div>');
+      // Emit cells in visual column order 1..7. Cells starting at this row take their slot;
+      // covered cells emit nothing (row-span from above claims them); truly empty slots
+      // emit .sch-empty. To respect grid auto-flow, we must place cells at the right column.
+      const rowCells = cellsByRow[rIdx].slice().sort((a, b) => a.startCol - b.startCol);
+      let col = 1;
+      while (col <= 7) {
+        // Skip covered.
+        while (col <= 7 && covered[rIdx][col]) col++;
+        if (col > 7) break;
+        // Is there an entry starting at this col?
+        const cell = rowCells.find(c => c.startCol === col);
+        if (cell) {
+          const spanStyle =
+            (cell.colSpan > 1 ? 'grid-column: span ' + cell.colSpan + ';' : '') +
+            (cell.rowSpan > 1 ? ' grid-row: span ' + cell.rowSpan + ';' : '');
+          const style = spanStyle ? ' style="' + spanStyle + '"' : '';
+          const eyebrow = cell.eyebrow ? '<span class="sh-eyebrow">' + esc2(cell.eyebrow) + '</span>' : '';
+          const titleCls = cell.category === 'flagship' ? 'sh-title sh-title-lg' : 'sh-title';
+          const host = cell.host ? '<span class="sh-host">' + esc2(cell.host) + '</span>' : '';
+          parts.push('<div class="sch-show s-' + cell.category + '"' + style + '>' + eyebrow + '<span class="' + titleCls + '">' + esc2(cell.title) + '</span>' + host + '</div>');
+          col += cell.colSpan;
+        } else {
+          // Empty slot until next non-empty column (or 7).
+          let empty = 1;
+          while (col + empty <= 7 && !covered[rIdx][col + empty] && !rowCells.find(c => c.startCol === col + empty)) empty++;
+          const spanStyle = empty > 1 ? ' style="grid-column: span ' + empty + ';"' : '';
+          parts.push('<div class="sch-cell sch-empty"' + spanStyle + '></div>');
+          col += empty;
+        }
+      }
+    });
+
+    grid.innerHTML = parts.join('');
+    // Refresh the "now on air" line, which is positioned by JS based on the grid layout.
+    if (typeof window.__updateNowLine === 'function') window.__updateNowLine();
+  }
+
   function applyAll(content) {
     if (!content || typeof content !== 'object') return;
     if (content.home) applyHome(content.home);
@@ -2802,7 +2998,14 @@ window.__initHeroSlides();
 
   fetch('content.json?v=' + Date.now(), { cache: 'no-store' })
     .then(r => r.ok ? r.json() : null)
-    .then(data => { if (data) applyAll(data); })
+    .then(data => {
+      if (!data) return;
+      loadedSchedule = (data.programas && Array.isArray(data.programas.schedule)) ? data.programas.schedule : null;
+      loadedFiller   = (data.programas && data.programas.filler) || null;
+      applyAll(data);
+      renderNowPlaying();
+      renderSchedule();
+    })
     .catch(() => { /* keep defaults */ });
 
   renderNowPlaying();
@@ -2819,10 +3022,10 @@ window.__initHeroSlides();
   if (!isAdmin) return;
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = '/editor.css?v=26';
+  css.href = '/editor.css?v=27';
   document.head.appendChild(css);
   const js = document.createElement('script');
-  js.src = '/editor.js?v=26';
+  js.src = '/editor.js?v=27';
   js.defer = true;
   document.body.appendChild(js);
 })();

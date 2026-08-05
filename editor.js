@@ -169,6 +169,11 @@
         if (hasWordJunk(n.body)) n.body = deWordify(n.body);
       });
     });
+    content.programas.schedule = Array.isArray(content.programas.schedule) ? content.programas.schedule : [];
+    content.programas.filler = content.programas.filler || {
+      title: 'Música cristiana sin pausa',
+      host:  'Las 24 horas en Elet Radio Vida'
+    };
   }
 
   // Session cache of just-uploaded images (filename -> dataURL) so previews show
@@ -712,8 +717,125 @@
     edify($('.page-eyebrow', main), id + '.eyebrow', { placeholder: 'Antetítulo' });
     edifyCompoundTitle($('.page-hero h1', main), id + '.title');
     edify($('.page-lead', main), id + '.lead', { multiline: true, placeholder: 'Bajada' });
-    if (id !== 'programas') decorateNotes(id, main);
+    if (id === 'programas') decorateSchedule(main);
+    else decorateNotes(id, main);
   }
+
+  /* -------- Schedule editor (weekly programming) -------- */
+  const CATEGORY_OPTS = [
+    { v: 'talk',       t: 'Palabra & devocional' },
+    { v: 'music',      t: 'Música' },
+    { v: 'flagship',   t: 'Programa central' },
+    { v: 'celebrate',  t: 'Adoración' },
+    { v: 'sport',      t: 'Deportes' },
+    { v: 'doc',        t: 'Documental' },
+    { v: 'talk-night', t: 'Noche' }
+  ];
+  const DAY_LABELS = [
+    { d: 1, t: 'L' }, { d: 2, t: 'M' }, { d: 3, t: 'X' },
+    { d: 4, t: 'J' }, { d: 5, t: 'V' }, { d: 6, t: 'S' }, { d: 0, t: 'D' }
+  ];
+
+  function decorateSchedule(main) {
+    // Insert (or reuse) an admin panel above .schedule-wrap.
+    const anchor = main.querySelector('.schedule-wrap');
+    if (!anchor) return;
+    let panel = main.querySelector('.schedule-admin');
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.className = 'schedule-admin';
+      anchor.parentNode.insertBefore(panel, anchor);
+    }
+    renderScheduleAdmin(panel, main);
+  }
+
+  function renderScheduleAdmin(panel, main) {
+    const list = content.programas.schedule;
+    // Stable sort: by start time so the editor mirrors the grid order.
+    const parseM = t => { const p = String(t || '0:0').split(':'); return (+p[0] || 0) * 60 + (+p[1] || 0); };
+    const idxs = list.map((_, i) => i).sort((a, b) => parseM(list[a].start) - parseM(list[b].start));
+
+    const opts = CATEGORY_OPTS.map(o => `<option value="${o.v}">${o.t}</option>`).join('');
+    const dayHTML = (days) => DAY_LABELS.map(d =>
+      `<label class="sd-day"><input type="checkbox" data-day="${d.d}" ${days.includes(d.d) ? 'checked' : ''}><span>${d.t}</span></label>`
+    ).join('');
+
+    panel.innerHTML =
+      '<div class="sa-head">' +
+        '<h3>Editar programación</h3>' +
+        '<p class="sa-hint">Cada programa se marca con los días en que va al aire. Los huecos aparecen vacíos en la grilla y como <strong>Música cristiana</strong> en la marquesina.</p>' +
+      '</div>' +
+      '<div class="sa-list">' +
+        idxs.map(idx => {
+          const e = list[idx];
+          const days = Array.isArray(e.days) ? e.days : [];
+          return (
+            '<article class="sa-item" data-idx="' + idx + '">' +
+              '<div class="sa-days" role="group" aria-label="Días">' + dayHTML(days) + '</div>' +
+              '<div class="sa-time">' +
+                '<input type="time" class="sa-start" value="' + escAttr(e.start || '00:00') + '" aria-label="Inicio"/>' +
+                '<span class="sa-arrow">→</span>' +
+                '<input type="time" class="sa-end"   value="' + escAttr(e.end   || '00:00') + '" aria-label="Fin"/>' +
+              '</div>' +
+              '<input type="text" class="sa-title" placeholder="Título del programa" value="' + escAttr(e.title || '') + '"/>' +
+              '<input type="text" class="sa-host"  placeholder="Conductor (opcional)" value="' + escAttr(e.host  || '') + '"/>' +
+              '<select class="sa-cat">' + opts.replace('value="' + (e.category || 'talk') + '"', 'value="' + (e.category || 'talk') + '" selected') + '</select>' +
+              '<input type="text" class="sa-eyebrow" placeholder="Etiqueta opcional (ej. Programa central)" value="' + escAttr(e.eyebrow || '') + '"/>' +
+              '<button class="admin-btn danger sa-del" title="Eliminar">× Eliminar</button>' +
+            '</article>'
+          );
+        }).join('') +
+      '</div>' +
+      '<button type="button" class="admin-add sa-add">+ Agregar programa</button>';
+
+    wireScheduleAdmin(panel, main);
+  }
+
+  function escAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+  function wireScheduleAdmin(panel, main) {
+    const list = content.programas.schedule;
+    panel.querySelectorAll('.sa-item').forEach(row => {
+      const idx = parseInt(row.dataset.idx, 10);
+      const e = list[idx];
+      if (!e) return;
+
+      row.querySelectorAll('input[data-day]').forEach(chk => {
+        chk.addEventListener('change', () => {
+          const d = parseInt(chk.dataset.day, 10);
+          const set = new Set(Array.isArray(e.days) ? e.days : []);
+          if (chk.checked) set.add(d); else set.delete(d);
+          e.days = [...set].sort((a, b) => a - b);
+          persist();
+        });
+      });
+      row.querySelector('.sa-start').addEventListener('change', ev => { e.start = ev.target.value || '00:00'; persist(); });
+      row.querySelector('.sa-end').addEventListener('change',   ev => { e.end   = ev.target.value || '00:00'; persist(); });
+      row.querySelector('.sa-title').addEventListener('input',  ev => { e.title = ev.target.value; persist(); });
+      row.querySelector('.sa-host').addEventListener('input',   ev => { e.host  = ev.target.value; persist(); });
+      row.querySelector('.sa-cat').addEventListener('change',   ev => { e.category = ev.target.value; persist(); });
+      row.querySelector('.sa-eyebrow').addEventListener('input',ev => { e.eyebrow = ev.target.value; persist(); });
+
+      row.querySelector('.sa-del').addEventListener('click', () => {
+        if (!confirm('¿Eliminar este programa?')) return;
+        list.splice(idx, 1);
+        persist();
+        renderScheduleAdmin(panel, main);
+      });
+    });
+
+    panel.querySelector('.sa-add').addEventListener('click', () => {
+      list.push({
+        days: [1, 2, 3, 4, 5],
+        start: '18:00', end: '19:00',
+        title: 'Programa nuevo', host: '',
+        category: 'talk'
+      });
+      persist();
+      renderScheduleAdmin(panel, main);
+    });
+  }
+  /* -------- end schedule editor -------- */
 
   // Convert a stored note body to HTML for editing/display.
   // New bodies are already HTML; old plain-text bodies get newlines -> <br>.
@@ -776,6 +898,7 @@
           <button type="button" data-cmd="title" title="Subtítulo">Subtítulo</button>
           <button type="button" data-cmd="bullets" title="Lista con viñetas">• Lista</button>
           <button type="button" data-cmd="image" title="Insertar imagen">🖼️ Imagen</button>
+          <button type="button" data-cmd="audio" title="Subir audio">🎵 Audio</button>
         </div>
         <div class="rt-body" data-edit-field="body" data-rich="1" contenteditable="true" data-placeholder="Escribí el contenido… (usá la barra para negrita, tamaños, imágenes)">${bodyToHTML(n.body)}</div>
       `;
@@ -911,6 +1034,7 @@
           }
           else if (cmd === 'unlink') document.execCommand('unlink');
           else if (cmd === 'image') { if (activeEl === body) await insertImageIntoBody(body); }
+          else if (cmd === 'audio') { if (activeEl === body) await insertAudioIntoBody(body); }
         } catch (e) {}
         save();
       });
@@ -968,6 +1092,60 @@
       if (el === title) el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') { e.preventDefault(); body.focus(); }
       });
+    });
+  }
+
+  // Pick an audio file, upload it to the repo, and insert a styled player block.
+  async function insertAudioIntoBody(body) {
+    return new Promise((resolve) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'audio/*';
+      input.onchange = async () => {
+        const file = input.files && input.files[0];
+        if (!file) { resolve(); return; }
+        if (!/^audio\//.test(file.type) && !/\.(mp3|m4a|aac|ogg|wav|opus|webm)$/i.test(file.name)) {
+          toast('El archivo no parece ser un audio.', 'err'); resolve(); return;
+        }
+        if (file.size > 4 * 1024 * 1024) {
+          toast('El audio supera 4 MB. Comprimilo o usá uno más corto.', 'err'); resolve(); return;
+        }
+        toast('Subiendo audio…');
+        let dataUrl;
+        try { dataUrl = await fileToDataURL(file); }
+        catch (e) { toast('No pude leer el archivo.', 'err'); resolve(); return; }
+        const base64 = dataUrl.split(',')[1];
+        const ext = (file.name.match(/\.[a-z0-9]+$/i) || ['.mp3'])[0].toLowerCase();
+        const fname = 'audio-' + Date.now() + ext;
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ passwordHash: PASS_HASH, filename: fname, dataBase64: base64, message: 'admin: subir audio ' + fname })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok) {
+            if (res.status === 503 && data.error === 'github_token_missing') toast('Backend no configurado (GITHUB_TOKEN).', 'err');
+            else if (res.status === 401) toast('La sesión expiró. Volvé a entrar.', 'err');
+            else toast('No se pudo subir el audio.', 'err');
+            resolve(); return;
+          }
+        } catch (err) {
+          toast('Error de red al subir el audio.', 'err'); resolve(); return;
+        }
+        const defaultTitle = file.name.replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ').trim() || 'Audio';
+        const safeTitle = defaultTitle.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        body.focus();
+        const html =
+          '<div class="audio-block" contenteditable="false" data-audio="1">' +
+            '<div class="audio-title" contenteditable="true" data-placeholder="Título del audio">' + safeTitle + '</div>' +
+            '<audio controls preload="metadata" src="' + fname + '"></audio>' +
+          '</div><p><br></p>';
+        document.execCommand('insertHTML', false, html);
+        toast('Audio insertado · acordate de "Publicar al sitio".', 'ok');
+        resolve();
+      };
+      input.click();
     });
   }
 
