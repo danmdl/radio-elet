@@ -174,6 +174,26 @@
       title: 'Música cristiana sin pausa',
       host:  'Las 24 horas en Elet Radio Vida'
     };
+    // Migrate legacy flat entries (days/start/end at top level) to the new
+    // grouped shape (title/host with slots[]), grouping by title+host.
+    const flat = [], grouped = {};
+    content.programas.schedule.forEach(e => {
+      if (Array.isArray(e && e.slots)) flat.push(e);
+      else if (e && e.title) {
+        const k = (e.title || '') + '\0' + (e.host || '');
+        if (!grouped[k]) grouped[k] = { title: e.title, host: e.host || '', disabled: false, slots: [] };
+        grouped[k].slots.push({ days: Array.isArray(e.days) ? e.days : [], start: e.start || '00:00', end: e.end || '00:00' });
+      }
+    });
+    if (Object.keys(grouped).length) {
+      content.programas.schedule = [...flat, ...Object.values(grouped)];
+    }
+    // Ensure every program has the disabled flag and a slots array.
+    content.programas.schedule.forEach(p => {
+      if (!p) return;
+      p.disabled = !!p.disabled;
+      if (!Array.isArray(p.slots)) p.slots = [];
+    });
   }
 
   // Session cache of just-uploaded images (filename -> dataURL) so previews show
@@ -722,22 +742,12 @@
   }
 
   /* -------- Schedule editor (weekly programming) -------- */
-  const CATEGORY_OPTS = [
-    { v: 'talk',       t: 'Palabra & devocional' },
-    { v: 'music',      t: 'Música' },
-    { v: 'flagship',   t: 'Programa central' },
-    { v: 'celebrate',  t: 'Adoración' },
-    { v: 'sport',      t: 'Deportes' },
-    { v: 'doc',        t: 'Documental' },
-    { v: 'talk-night', t: 'Noche' }
-  ];
   const DAY_LABELS = [
     { d: 1, t: 'L' }, { d: 2, t: 'M' }, { d: 3, t: 'X' },
     { d: 4, t: 'J' }, { d: 5, t: 'V' }, { d: 6, t: 'S' }, { d: 0, t: 'D' }
   ];
 
   function decorateSchedule(main) {
-    // Insert (or reuse) an admin panel above .schedule-wrap.
     const anchor = main.querySelector('.schedule-wrap');
     if (!anchor) return;
     let panel = main.querySelector('.schedule-admin');
@@ -749,90 +759,124 @@
     renderScheduleAdmin(panel, main);
   }
 
+  function escAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
   function renderScheduleAdmin(panel, main) {
     const list = content.programas.schedule;
-    // Stable sort: by start time so the editor mirrors the grid order.
-    const parseM = t => { const p = String(t || '0:0').split(':'); return (+p[0] || 0) * 60 + (+p[1] || 0); };
-    const idxs = list.map((_, i) => i).sort((a, b) => parseM(list[a].start) - parseM(list[b].start));
-
-    const opts = CATEGORY_OPTS.map(o => `<option value="${o.v}">${o.t}</option>`).join('');
     const dayHTML = (days) => DAY_LABELS.map(d =>
       `<label class="sd-day"><input type="checkbox" data-day="${d.d}" ${days.includes(d.d) ? 'checked' : ''}><span>${d.t}</span></label>`
     ).join('');
+    const slotHTML = (slot, slotIdx) => (
+      '<div class="sa-slot" data-slot="' + slotIdx + '">' +
+        '<div class="sa-days" role="group" aria-label="Días">' + dayHTML(Array.isArray(slot.days) ? slot.days : []) + '</div>' +
+        '<div class="sa-time">' +
+          '<input type="time" class="sa-start" step="300" value="' + escAttr(slot.start || '00:00') + '" aria-label="Inicio"/>' +
+          '<span class="sa-arrow">→</span>' +
+          '<input type="time" class="sa-end"   step="300" value="' + escAttr(slot.end   || '00:00') + '" aria-label="Fin"/>' +
+        '</div>' +
+        '<button class="sa-slot-del" type="button" title="Quitar horario" aria-label="Quitar horario">×</button>' +
+      '</div>'
+    );
+    const programHTML = (p, idx) => (
+      '<article class="sa-program' + (p.disabled ? ' sa-disabled' : '') + '" data-idx="' + idx + '">' +
+        '<div class="sa-prog-head">' +
+          '<input class="sa-prog-title" type="text" placeholder="Nombre del programa" value="' + escAttr(p.title || '') + '"/>' +
+          '<input class="sa-prog-host"  type="text" placeholder="Conductor (opcional)" value="' + escAttr(p.host  || '') + '"/>' +
+          (p.disabled ? '<span class="sa-badge">Deshabilitado</span>' : '') +
+        '</div>' +
+        '<div class="sa-slots">' +
+          (Array.isArray(p.slots) ? p.slots.map(slotHTML).join('') : '') +
+        '</div>' +
+        '<div class="sa-prog-tools">' +
+          '<button class="sa-add-slot" type="button">+ Agregar horario</button>' +
+          '<div class="sa-prog-actions">' +
+            '<button class="sa-toggle" type="button">' + (p.disabled ? '▶ Habilitar' : '⏸ Deshabilitar') + '</button>' +
+            '<button class="sa-prog-del" type="button">× Eliminar programa</button>' +
+            '<button class="sa-prog-save" type="button">✓ Guardar</button>' +
+          '</div>' +
+        '</div>' +
+      '</article>'
+    );
 
     panel.innerHTML =
       '<div class="sa-head">' +
         '<h3>Editar programación</h3>' +
-        '<p class="sa-hint">Cada programa se marca con los días en que va al aire. Los huecos aparecen vacíos en la grilla y como <strong>Música cristiana</strong> en la marquesina.</p>' +
+        '<p class="sa-hint">Cada programa puede tener varios horarios: agregá uno por cada franja en que sale al aire. Los huecos aparecen vacíos en la grilla y como <strong>Música cristiana</strong> en la marquesina.</p>' +
       '</div>' +
-      '<div class="sa-list">' +
-        idxs.map(idx => {
-          const e = list[idx];
-          const days = Array.isArray(e.days) ? e.days : [];
-          return (
-            '<article class="sa-item" data-idx="' + idx + '">' +
-              '<div class="sa-days" role="group" aria-label="Días">' + dayHTML(days) + '</div>' +
-              '<div class="sa-time">' +
-                '<input type="time" class="sa-start" value="' + escAttr(e.start || '00:00') + '" aria-label="Inicio"/>' +
-                '<span class="sa-arrow">→</span>' +
-                '<input type="time" class="sa-end"   value="' + escAttr(e.end   || '00:00') + '" aria-label="Fin"/>' +
-              '</div>' +
-              '<input type="text" class="sa-title" placeholder="Título del programa" value="' + escAttr(e.title || '') + '"/>' +
-              '<input type="text" class="sa-host"  placeholder="Conductor (opcional)" value="' + escAttr(e.host  || '') + '"/>' +
-              '<select class="sa-cat">' + opts.replace('value="' + (e.category || 'talk') + '"', 'value="' + (e.category || 'talk') + '" selected') + '</select>' +
-              '<input type="text" class="sa-eyebrow" placeholder="Etiqueta opcional (ej. Programa central)" value="' + escAttr(e.eyebrow || '') + '"/>' +
-              '<button class="admin-btn danger sa-del" title="Eliminar">× Eliminar</button>' +
-            '</article>'
-          );
-        }).join('') +
-      '</div>' +
+      '<div class="sa-list">' + list.map(programHTML).join('') + '</div>' +
       '<button type="button" class="admin-add sa-add">+ Agregar programa</button>';
 
     wireScheduleAdmin(panel, main);
   }
 
-  function escAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
-
   function wireScheduleAdmin(panel, main) {
     const list = content.programas.schedule;
-    panel.querySelectorAll('.sa-item').forEach(row => {
-      const idx = parseInt(row.dataset.idx, 10);
-      const e = list[idx];
-      if (!e) return;
+    const rerender = () => renderScheduleAdmin(panel, main);
 
-      row.querySelectorAll('input[data-day]').forEach(chk => {
-        chk.addEventListener('change', () => {
-          const d = parseInt(chk.dataset.day, 10);
-          const set = new Set(Array.isArray(e.days) ? e.days : []);
-          if (chk.checked) set.add(d); else set.delete(d);
-          e.days = [...set].sort((a, b) => a - b);
+    panel.querySelectorAll('.sa-program').forEach(card => {
+      const idx = parseInt(card.dataset.idx, 10);
+      const p = list[idx];
+      if (!p) return;
+
+      card.querySelector('.sa-prog-title').addEventListener('input', ev => { p.title = ev.target.value; persist(); });
+      card.querySelector('.sa-prog-host').addEventListener('input',  ev => { p.host  = ev.target.value; persist(); });
+
+      card.querySelectorAll('.sa-slot').forEach(slotEl => {
+        const slotIdx = parseInt(slotEl.dataset.slot, 10);
+        const s = p.slots[slotIdx];
+        if (!s) return;
+        slotEl.querySelectorAll('input[data-day]').forEach(chk => {
+          chk.addEventListener('change', () => {
+            const d = parseInt(chk.dataset.day, 10);
+            const set = new Set(Array.isArray(s.days) ? s.days : []);
+            if (chk.checked) set.add(d); else set.delete(d);
+            s.days = [...set].sort((a, b) => a - b);
+            persist();
+          });
+        });
+        slotEl.querySelector('.sa-start').addEventListener('change', ev => { s.start = ev.target.value || '00:00'; persist(); });
+        slotEl.querySelector('.sa-end').addEventListener('change',   ev => { s.end   = ev.target.value || '00:00'; persist(); });
+        slotEl.querySelector('.sa-slot-del').addEventListener('click', () => {
+          p.slots.splice(slotIdx, 1);
           persist();
+          rerender();
         });
       });
-      row.querySelector('.sa-start').addEventListener('change', ev => { e.start = ev.target.value || '00:00'; persist(); });
-      row.querySelector('.sa-end').addEventListener('change',   ev => { e.end   = ev.target.value || '00:00'; persist(); });
-      row.querySelector('.sa-title').addEventListener('input',  ev => { e.title = ev.target.value; persist(); });
-      row.querySelector('.sa-host').addEventListener('input',   ev => { e.host  = ev.target.value; persist(); });
-      row.querySelector('.sa-cat').addEventListener('change',   ev => { e.category = ev.target.value; persist(); });
-      row.querySelector('.sa-eyebrow').addEventListener('input',ev => { e.eyebrow = ev.target.value; persist(); });
 
-      row.querySelector('.sa-del').addEventListener('click', () => {
-        if (!confirm('¿Eliminar este programa?')) return;
+      card.querySelector('.sa-add-slot').addEventListener('click', () => {
+        p.slots.push({ days: [1, 2, 3, 4, 5], start: '18:00', end: '19:00' });
+        persist();
+        rerender();
+      });
+      card.querySelector('.sa-toggle').addEventListener('click', () => {
+        p.disabled = !p.disabled;
+        persist();
+        rerender();
+      });
+      card.querySelector('.sa-prog-del').addEventListener('click', () => {
+        if (!confirm('¿Eliminar el programa "' + (p.title || 'sin título') + '" y todos sus horarios?')) return;
         list.splice(idx, 1);
         persist();
-        renderScheduleAdmin(panel, main);
+        rerender();
+      });
+      card.querySelector('.sa-prog-save').addEventListener('click', (ev) => {
+        const btn = ev.currentTarget;
+        const orig = btn.textContent;
+        btn.textContent = '✓ Guardado';
+        btn.classList.add('saved');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('saved'); }, 1400);
       });
     });
 
     panel.querySelector('.sa-add').addEventListener('click', () => {
       list.push({
-        days: [1, 2, 3, 4, 5],
-        start: '18:00', end: '19:00',
-        title: 'Programa nuevo', host: '',
-        category: 'talk'
+        title: 'Programa nuevo',
+        host: '',
+        disabled: false,
+        slots: [{ days: [1, 2, 3, 4, 5], start: '18:00', end: '19:00' }]
       });
       persist();
-      renderScheduleAdmin(panel, main);
+      rerender();
     });
   }
   /* -------- end schedule editor -------- */

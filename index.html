@@ -2749,18 +2749,39 @@ window.__initHeroSlides();
     return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
   }
 
-  function buildDayFromSchedule(dow, entries, filler) {
+  // Flatten the grouped schedule (programs → slots) into a flat list of
+  // per-day airings. Skips disabled programs and legacy shapes both work.
+  function flattenSchedule(programs) {
+    const flat = [];
+    if (!Array.isArray(programs)) return flat;
+    for (const p of programs) {
+      if (!p || p.disabled) continue;
+      const slots = Array.isArray(p.slots) ? p.slots
+                  : (p.start ? [{ days: p.days || [], start: p.start, end: p.end }] : []);
+      for (const s of slots) {
+        if (!s || !Array.isArray(s.days) || !s.days.length) continue;
+        flat.push({
+          days: s.days.slice().filter(d => d >= 0 && d <= 6),
+          start: s.start, end: s.end,
+          title: p.title || '', host: p.host || ''
+        });
+      }
+    }
+    return flat;
+  }
+
+  function buildDayFromSchedule(dow, programs, filler) {
     const fill = {
       title: (filler && filler.title) || 'Música cristiana sin pausa',
       host:  (filler && filler.host)  || ''
     };
-    const list = entries
-      .filter(e => Array.isArray(e.days) && e.days.includes(dow))
+    const list = flattenSchedule(programs)
+      .filter(e => e.days.includes(dow))
       .map(e => {
         const s = parseHM(e.start);
         let en = parseHM(e.end);
         if (en <= s) en += 1440;
-        return { m: s, end: en, title: e.title, host: e.host || '' };
+        return { m: s, end: en, title: e.title, host: e.host };
       })
       .sort((a, b) => a.m - b.m);
     if (!list.length) return [{ m: 0, title: fill.title, host: fill.host }];
@@ -2877,12 +2898,11 @@ window.__initHeroSlides();
     const grid = document.querySelector('#route-programas .schedule');
     if (!grid) return;
 
-    const entries = loadedSchedule.map(e => {
+    const entries = flattenSchedule(loadedSchedule).map(e => {
       const s = parseHM(e.start);
       let en = parseHM(e.end);
       if (en <= s) en += 1440;
-      const days = (Array.isArray(e.days) ? e.days : []).filter(d => d >= 0 && d <= 6);
-      return { start: s, end: en, days: days, title: e.title || '', host: e.host || '', category: e.category || 'talk', eyebrow: e.eyebrow || '' };
+      return { start: s, end: en, days: e.days, title: e.title, host: e.host, category: 'talk' };
     }).filter(e => e.days.length && e.title);
 
     // Row boundaries = unique entry starts + hourly anchors (0..23) + 1440 sentinel.
@@ -2923,7 +2943,7 @@ window.__initHeroSlides();
       runs.forEach(r => {
         cellsByRow[sRow].push({
           startCol: r[0], colSpan: r.length, rowSpan: spanRows,
-          title: entry.title, host: entry.host, category: entry.category, eyebrow: entry.eyebrow
+          title: entry.title, host: entry.host, category: entry.category
         });
       });
     });
@@ -2966,10 +2986,8 @@ window.__initHeroSlides();
             (cell.colSpan > 1 ? 'grid-column: span ' + cell.colSpan + ';' : '') +
             (cell.rowSpan > 1 ? ' grid-row: span ' + cell.rowSpan + ';' : '');
           const style = spanStyle ? ' style="' + spanStyle + '"' : '';
-          const eyebrow = cell.eyebrow ? '<span class="sh-eyebrow">' + esc2(cell.eyebrow) + '</span>' : '';
-          const titleCls = cell.category === 'flagship' ? 'sh-title sh-title-lg' : 'sh-title';
           const host = cell.host ? '<span class="sh-host">' + esc2(cell.host) + '</span>' : '';
-          parts.push('<div class="sch-show s-' + cell.category + '"' + style + '>' + eyebrow + '<span class="' + titleCls + '">' + esc2(cell.title) + '</span>' + host + '</div>');
+          parts.push('<div class="sch-show s-' + cell.category + '"' + style + '><span class="sh-title">' + esc2(cell.title) + '</span>' + host + '</div>');
           col += cell.colSpan;
         } else {
           // Empty slot until next non-empty column (or 7).
@@ -3022,10 +3040,10 @@ window.__initHeroSlides();
   if (!isAdmin) return;
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = '/editor.css?v=27';
+  css.href = '/editor.css?v=28';
   document.head.appendChild(css);
   const js = document.createElement('script');
-  js.src = '/editor.js?v=27';
+  js.src = '/editor.js?v=28';
   js.defer = true;
   document.body.appendChild(js);
 })();

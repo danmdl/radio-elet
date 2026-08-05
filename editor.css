@@ -510,9 +510,8 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
 
 /* ============ Schedule editor (Programas) ============ */
 .schedule-admin {
-  margin: 20px auto 28px;
-  max-width: 1100px;
-  padding: 20px;
+  margin: 20px 24px 28px;
+  padding: 24px 28px;
   background: #fff;
   border: 1px solid rgba(30,160,62,0.2);
   border-radius: 14px;
@@ -521,37 +520,134 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
 .schedule-admin .sa-head h3 {
   margin: 0 0 6px;
   font-family: 'Oswald', sans-serif;
-  font-size: 20px;
+  font-size: 22px;
   color: #1a3a23;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .schedule-admin .sa-hint {
-  margin: 0 0 16px;
+  margin: 0 0 20px;
   color: #667;
   font-size: 13px;
 }
-.schedule-admin .sa-list { display: flex; flex-direction: column; gap: 12px; }
+.schedule-admin .sa-list { display: flex; flex-direction: column; gap: 16px; }
 
-.sa-item {
-  display: grid;
-  grid-template-columns: auto auto 1fr 1fr auto auto auto;
-  gap: 10px 12px;
+/* Program card — clean layout without inner boxes for each field */
+.sa-program {
+  padding: 18px 22px 14px;
+  background: #fff;
+  border: 1px solid rgba(30,160,62,0.18);
+  border-radius: 12px;
+  transition: opacity 0.15s, background 0.15s;
+}
+.sa-program.sa-disabled {
+  opacity: 0.6;
+  background: #f6f6f5;
+}
+.sa-program.sa-disabled .sa-slots { pointer-events: none; }
+
+.sa-prog-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+.sa-prog-title {
+  flex: 1 1 320px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1a3a23;
+  border: none;
+  border-bottom: 2px solid transparent;
+  outline: none;
+  padding: 4px 0;
+  background: transparent;
+  min-width: 0;
+}
+.sa-prog-title:hover { border-bottom-color: rgba(30,160,62,0.25); }
+.sa-prog-title:focus { border-bottom-color: #1ea03e; }
+.sa-prog-host {
+  flex: 1 1 260px;
+  font-size: 14px;
+  color: #667;
+  border: none;
+  border-bottom: 1px dashed transparent;
+  padding: 4px 0;
+  background: transparent;
+  outline: none;
+  min-width: 0;
+}
+.sa-prog-host:hover { border-bottom-color: rgba(30,160,62,0.25); }
+.sa-prog-host:focus { border-bottom-color: #1ea03e; }
+.sa-badge {
+  align-self: center;
+  padding: 3px 10px;
+  background: #eee;
+  color: #666;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: 'Oswald', sans-serif;
+}
+
+/* Time slots — plain rows, no per-row boxes */
+.sa-slots {
+  margin: 10px 0 6px;
+  padding: 8px 0 4px;
+  border-top: 1px solid #eee;
+}
+.sa-slot {
+  display: flex;
   align-items: center;
-  padding: 12px;
-  background: #f7faf7;
-  border: 1px solid rgba(30,160,62,0.15);
-  border-radius: 10px;
+  gap: 14px;
+  padding: 6px 0;
+  flex-wrap: wrap;
 }
-@media (max-width: 900px) {
-  .sa-item { grid-template-columns: 1fr 1fr; }
-  .sa-item .sa-title, .sa-item .sa-eyebrow { grid-column: 1 / -1; }
-  .sa-item .sa-days { grid-column: 1 / -1; }
-  .sa-item .sa-del { grid-column: 1 / -1; justify-self: end; }
+.sa-slot + .sa-slot { border-top: 1px dashed #eee; padding-top: 10px; }
+.sa-slot .sa-days { flex: 0 0 auto; }
+.sa-slot .sa-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.sa-arrow { color: #888; font-weight: 600; }
+.sa-slot input[type="time"] {
+  padding: 6px 8px;
+  border: 1px solid #cfd6cf;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  min-width: 0;
+  max-width: 110px;
+}
+.sa-slot input[type="time"]:focus { border-color: #1ea03e; outline: none; }
+.sa-slot-del {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #999;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+}
+.sa-slot-del:hover {
+  background: #fef1f1;
+  color: #d62828;
+  border-color: #d62828;
 }
 
+/* Day pills */
 .sa-days { display: inline-flex; flex-wrap: wrap; gap: 4px; }
-.sa-day {
+.sd-day {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -566,37 +662,77 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
   cursor: pointer;
   user-select: none;
   transition: background 0.15s, color 0.15s;
+  position: relative;
 }
-.sa-day input { position: absolute; opacity: 0; pointer-events: none; }
-.sa-day:has(input:checked) { background: #1ea03e; color: #fff; }
-.sa-day:hover { background: #dcdcdc; }
-.sa-day:has(input:checked):hover { background: #167f30; }
+.sd-day input { position: absolute; opacity: 0; pointer-events: none; }
+.sd-day:has(input:checked) { background: #1ea03e; color: #fff; }
+.sd-day:hover { background: #dcdcdc; }
+.sd-day:has(input:checked):hover { background: #167f30; }
 
-.sa-time { display: inline-flex; align-items: center; gap: 6px; }
-.sa-arrow { color: #888; }
-.sa-item input[type="time"],
-.sa-item input[type="text"],
-.sa-item select {
-  padding: 6px 8px;
-  border: 1px solid #cfd6cf;
-  border-radius: 6px;
-  font-size: 13px;
-  font-family: inherit;
-  background: #fff;
-  min-width: 0;
+/* Program actions row */
+.sa-prog-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+  flex-wrap: wrap;
 }
-.sa-item input[type="time"] { max-width: 100px; }
-.sa-item .sa-title { font-weight: 600; }
-.sa-item .sa-eyebrow { font-size: 12px; color: #667; }
-
-.sa-del {
-  padding: 6px 10px;
+.sa-add-slot {
+  background: transparent;
+  border: 1.5px dashed #b6d4bc;
+  color: #167f30;
+  padding: 6px 14px;
+  border-radius: 8px;
   font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
 }
+.sa-add-slot:hover { background: rgba(30,160,62,0.06); border-color: #1ea03e; }
+.sa-prog-actions {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.sa-toggle,
+.sa-prog-del,
+.sa-prog-save {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.sa-toggle {
+  border: 1px solid #cfd6cf;
+  background: #fff;
+  color: #666;
+}
+.sa-toggle:hover { border-color: #d3ac3a; color: #a08429; background: #fffbe8; }
+.sa-prog-del {
+  border: 1px solid #cfd6cf;
+  background: #fff;
+  color: #666;
+}
+.sa-prog-del:hover { background: #fef1f1; border-color: #d62828; color: #d62828; }
+.sa-prog-save {
+  border: 1px solid #1ea03e;
+  background: #1ea03e;
+  color: #fff;
+  font-weight: 600;
+}
+.sa-prog-save:hover { background: #167f30; border-color: #167f30; }
+.sa-prog-save.saved { background: #145d24; border-color: #145d24; }
 
 .schedule-admin .sa-add {
-  margin-top: 14px;
-  padding: 10px 18px;
+  margin-top: 18px;
+  padding: 12px 22px;
   background: #1ea03e;
   color: #fff;
   border: none;
@@ -608,3 +744,11 @@ body.admin-mode .photo-caption .pc-dot { pointer-events: none; }
   transition: background 0.15s;
 }
 .schedule-admin .sa-add:hover { background: #167f30; }
+
+@media (max-width: 720px) {
+  .schedule-admin { margin: 16px 12px 24px; padding: 16px; }
+  .sa-program { padding: 14px 14px 10px; }
+  .sa-slot { gap: 8px; }
+  .sa-slot-del { margin-left: 0; }
+  .sa-prog-actions { width: 100%; margin-left: 0; }
+}
