@@ -2385,15 +2385,31 @@ window.__initHeroSlides = function () {
 window.__initHeroSlides();
 </script>
 
-  <audio id="audioEl" preload="none">
-    <source src="https://cdn.instream.audio:2020/9858/stream" type="audio/mpeg" />
-  </audio>
+  <audio id="audioEl" preload="none"></audio>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
   <script>
 (function () {
   const audio = document.getElementById('audioEl');
   if (!audio) return;
-  const source = audio.querySelector('source');
-  const streamUrl = source ? source.src : audio.src;
+  const streamUrl = 'https://live-ar1.cdnrad.com/hls/radioelet/master.m3u8';
+  let hlsInstance = null;
+
+  // Attach the live stream to the <audio>. Uses native HLS on Safari/iOS and
+  // hls.js everywhere else. Idempotent — safe to call again after audio.src
+  // is cleared or errors out.
+  function attachStream() {
+    if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+      if (!audio.src || audio.src === window.location.href) audio.src = streamUrl;
+    } else if (window.Hls && window.Hls.isSupported()) {
+      if (!hlsInstance) {
+        hlsInstance = new window.Hls({ lowLatencyMode: true });
+        hlsInstance.loadSource(streamUrl);
+        hlsInstance.attachMedia(audio);
+      }
+    } else {
+      if (!audio.src || audio.src === window.location.href) audio.src = streamUrl;
+    }
+  }
   const buttons = document.querySelectorAll('[data-play-toggle]');
   let isPlaying = false;
   const savedVolume = parseFloat(sessionStorage.getItem('elet_volume'));
@@ -2495,9 +2511,7 @@ window.__initHeroSlides();
   function play() {
     userIntentPlay = true;
     sessionStorage.setItem(INTENT_KEY, '1');
-    if (!audio.src || audio.src === '' || audio.src === window.location.href) {
-      audio.src = streamUrl;
-    }
+    attachStream();
     audio.play().then(() => setPlaying(true)).catch(err => {
       console.error('Error al reproducir:', err);
       alert('No se pudo conectar al stream. Intentá de nuevo.');
@@ -2520,7 +2534,7 @@ window.__initHeroSlides();
   // still wants it on, try to resume.
   function ensurePlaying() {
     if (userIntentPlay && audio.paused) {
-      if (!audio.src || audio.src === window.location.href) audio.src = streamUrl;
+      attachStream();
       audio.play().then(() => setPlaying(true)).catch(() => { /* autoplay blocked */ });
     }
   }
